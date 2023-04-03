@@ -9,16 +9,20 @@ from keyboard.admin_kb import gen_inline_main_menu
 from handlers.admin import ID
 from aiogram_calendar import simple_cal_callback, SimpleCalendar
 from database import sqlite_db
+import math
 
 
 
 # @dp.message_handler(commands=['start'])
 async def start_message(message: types.Message):
-    await message.answer('Привет! Я charter- бот, созданный для общения и помощи в различных задачах. Чтоб начать пользоваться нажми /menu')
+    await message.answer('👋 Привет! Я charter- бот, созданный для общения и помощи в различных задачах. Чтоб начать пользоваться нажми /menu')
 
 
-# @dp.message_handler(commands=['menu'])
-async def menu(message: types.Message):
+# @dp.message_handler(commands=['menu'], state="*")
+async def menu(message: types.Message, state: FSMContext):
+    current_state = await state.get_state()
+    if current_state:  
+        await state.finish()
     
     if message.from_user.id == ID:
         await message.answer('Здравствуйте, вот список заявок', reply_markup=gen_inline_main_menu())
@@ -32,7 +36,20 @@ async def menu_2(callback: types.CallbackQuery):
     
     await callback.message.answer('Чем я могу Вам помочь сегодня?', reply_markup=inline_menu)
 
+# @dp.message_handler(commands=['consultant'], state="*")
+async def consultant(message: types.Message, state: FSMContext):
+    current_state = await state.get_state()
+    if current_state:  
+        await state.finish()
+    await message.answer('Ваша заявки принята, консультант свяжется с вами в ближайшее время')
+    await sqlite_db.add_consultant(message.from_user.id)
+    
 
+# @dp.callback_query_handler(text=['consultant'])
+async def consultant_2(callback: types.CallbackQuery):
+    await callback.message.answer('Ваша заявки принята, консультант свяжется с вами в ближайшее время')
+    await sqlite_db.add_consultant(callback.from_user.id)
+    
 
 
 # ____________EVISA_____________________________
@@ -40,12 +57,11 @@ async def menu_2(callback: types.CallbackQuery):
 # @dp.callback_query_handler(commands=['evisa'])
 async def evisa_menu(callback: types.CallbackQuery):
     await callback.message.delete()
-    await callback.message.answer('Стандартный срок оформления Евизы 3-5 рабочих дней. Также доступно срочное оформление визы.\nГотовы приступить?',
+    await callback.message.answer('Срок оформления Евизы 3-5 рабочих дней.\nСтоимость оформления - 40$\n\nПриступим?',
                                 reply_markup=visa_btn)
 
 
 class FSMVisa(StatesGroup):
-    visa = State()
     date = State()
     location = State()
     passport = State()
@@ -55,25 +71,16 @@ class FSMVisa(StatesGroup):
 # @dp.callback_query_handler(text=['visa_yes'], state=None)
 async def visa_start(callback: types.CallbackQuery):
     await callback.message.delete()
-    await FSMVisa.visa.set()
-    await callback.message.answer('Выберите вариант оформления евизы:', reply_markup=visa_type)
-
-# @dp.callback_query_handler(state=FSMVisa.visa)
-async def visa_load_type(callback: types.CallbackQuery, state: FSMContext):
-    await callback.message.delete()
-    async with state.proxy() as data:
-        data['user_id'] = callback.message.chat.id
-        data['visa'] = callback.data
-    await FSMVisa.next()
+    await FSMVisa.date.set()
     await callback.message.answer('Выберите дату пересечения границы:', reply_markup=await SimpleCalendar().start_calendar())
 
 
 # @dp.callback_query_handler(state=FSMVisa.date, simple_cal_callback.filter())
 async def visa_load_date(callback: types.CallbackQuery, callback_data: dict, state: FSMContext):
-    
     selected, date = await SimpleCalendar().process_selection(callback, callback_data)
     if selected:
         async with state.proxy() as data:
+            data['user_id'] = callback.message.chat.id
             data['date'] = date.strftime("%d/%m/%Y")
         await callback.message.delete()
         await FSMVisa.next()
@@ -123,7 +130,7 @@ class FSMCharter(StatesGroup):
 # @dp.callback_query_handler(text=['charter'])
 async def charter(callback: types.CallbackQuery):
      await callback.message.delete()
-     await callback.message.answer('Оформление чартерных билетов\nАвиабилеты на чартерные рейсы обмену и возврату не подлежат.\nПриступим?', reply_markup=charter_btn)
+     await callback.message.answer('⚠️ Авиабилеты на чартерные рейсы обмену и возврату не подлежат.\n\n🧳 Включен багаж - 20 кг, ручная кладь - 8 кг\n\nПриступим?', reply_markup=charter_btn)
 
 
 # @dp.callback_query_handler(text=['charter_yes'], state=None)
@@ -257,14 +264,14 @@ class FSMTour(StatesGroup):
 # @dp.callback_query_handler(text=['tour'])
 async def tour(callback: types.CallbackQuery):
      await callback.message.delete()
-     await callback.message.answer('Каждый тур включает в себя:\n- Авиаперелет туда-обратно\n- Проживание\n- Трансфер\n- Мед.страховка\nПриступим?', reply_markup=tour_btn)
+     await callback.message.answer('Каждый тур включает в себя:\n\n✈️ Авиаперелет туда-обратно\n🏨 Проживание\n😋 Питание (опция)\n🚌 Трансфер\n🏥 Мед.страховка\n\nПриступим?', reply_markup=tour_btn)
 
 
 # @dp.callback_query_handler(text=['tour_yes'], state=None)
 async def tour_start(callback: types.CallbackQuery):
      await FSMTour.departure.set()
      await callback.message.delete()
-     await callback.message.answer('Тур пакет\nВыберите город вылета', reply_markup=tour_cities)
+     await callback.message.answer('Выберите город вылета', reply_markup=tour_cities)
 
 
 # @dp.callback_query_handler(state=FSMTour.departure)
@@ -274,7 +281,7 @@ async def tour_departure_load(callback: types.CallbackQuery, state=FSMContext):
          data['departure'] = callback.data
     await FSMTour.next()
     await callback.message.delete()
-    await callback.message.answer('Тур пакет\nВыберите курорт:', reply_markup=tour_resort)
+    await callback.message.answer('Выберите курорт:', reply_markup=tour_resort)
 
 
 # @dp.callback_query_handler(state=FSMTour.resort)
@@ -283,7 +290,7 @@ async def resort_load(callback: types.CallbackQuery, state=FSMContext):
          data['resort'] = callback.data
     await FSMTour.next()
     await callback.message.delete()
-    await callback.message.answer('Тур пакет\nВыберите дату вылета:', reply_markup=await SimpleCalendar().start_calendar())
+    await callback.message.answer('Выберите дату вылета:', reply_markup=await SimpleCalendar().start_calendar())
 
 
 # @dp.callback_query_handler(simple_cal_callback.filter(), state=FSMTour.date_departure)
@@ -295,7 +302,7 @@ async def tour_date_departure_load(callback: types.CallbackQuery, callback_data:
     
         await FSMTour.next()
         await callback.message.delete()
-        await callback.message.answer('Тур пакет\nКоличество ночей?', reply_markup=tour_night)
+        await callback.message.answer('Количество ночей?', reply_markup=tour_night)
 
 
 # @dp.callback_query_handler(state=FSMTour.amount_of_nights)
@@ -304,7 +311,7 @@ async def tour_amount_of_nights_load(callback: types.CallbackQuery, state=FSMCon
          data['amount_of_nights'] = callback.data
     await FSMTour.next()
     await callback.message.delete()
-    await callback.message.answer('Тур пакет\nКоличество человек:', reply_markup=number_of_persons_btn)
+    await callback.message.answer('Количество человек:', reply_markup=number_of_persons_btn)
 
 
 # @dp.callback_query_handler(state=FSMTour.number_of_persons)
@@ -313,7 +320,7 @@ async def tour_number_of_persons_load(callback: types.CallbackQuery, state=FSMCo
          data['number_of_persons'] = callback.data
     await FSMTour.next()
     await callback.message.delete()
-    await callback.message.answer('Тур пакет\nПутешествуют ли с Вами дети', reply_markup=yes_no_btn)
+    await callback.message.answer('nПутешествуют ли с Вами дети', reply_markup=yes_no_btn)
 
 
 # @dp.callback_query_handler(state=FSMTour.children)
@@ -329,7 +336,7 @@ async def tour_children_load(callback: types.CallbackQuery, state=FSMContext):
             data['age_children'] = callback.data
          await FSMTour.next()
          await callback.message.delete()
-         await callback.message.answer('Тур пакет\nЕсть ли у вас отель на примете?', reply_markup=yes_no_btn)
+         await callback.message.answer('Есть ли у вас отель на примете?', reply_markup=yes_no_btn)
     else:
         await FSMTour.next()
         await callback.message.delete()
@@ -342,7 +349,7 @@ async def tour_number_of_childrens_load(callback: types.CallbackQuery, state=FSM
          data['number_of_childrens'] = callback.data
     await FSMTour.next()
     await callback.message.delete()
-    await callback.message.answer('Тур пакет\nВведите возраст детей через пробел')
+    await callback.message.answer('Введите возраст детей через пробел')
 
 
 # @dp.message_handler(state=FSMTour.age_children)
@@ -351,7 +358,7 @@ async def tour_age_children(message: types.Message, state=FSMContext):
          data['age_children'] = message.text
     await FSMTour.next()
     await message.delete()
-    await message.answer('Тур пакет\nЕсть ли у вас отель на примете?', reply_markup=yes_no_btn)
+    await message.answer('Есть ли у вас отель на примете?', reply_markup=yes_no_btn)
 
 
 # @dp.callback_query_handler(state=FSMTour.hotel)
@@ -364,7 +371,7 @@ async def tour_hotel_load(callback: types.CallbackQuery, state=FSMContext):
             data['hotel_name'] = callback.data
         await FSMTour.next()
         await callback.message.delete()
-        await callback.message.answer('Тур пакет\nВыберите кол-во звзед в отеле', reply_markup=hotel_stars_btn)
+        await callback.message.answer('Выберите кол-во звед в отеле', reply_markup=hotel_stars_btn)
 
     else:
         await FSMTour.next()
@@ -416,7 +423,7 @@ class FSMHotel(StatesGroup):
 # @dp.callback_query_handler(text=['hotel'])
 async def hotel(callback: types.CallbackQuery):
      await callback.message.delete()
-     await callback.message.answer('Мы бронируем отели во Вьетнаме по лучшим тарифам.\nПриступим?', reply_markup=hotel_btn)
+     await callback.message.answer('Мы бронируем отели во Вьетнаме по лучшим тарифам.\n\nПриступим?', reply_markup=hotel_btn)
 
 
 # @dp.callback_query_handler(text=['hotel_yes'], state=None)
@@ -448,7 +455,7 @@ async def hotel_load(callback: types.CallbackQuery, state=FSMContext):
             data['hotel_name'] = callback.data
         await FSMHotel.next()
         await callback.message.delete()
-        await callback.message.answer('Выберите кол-во звзед в отеле', reply_markup=hotel_stars_btn)
+        await callback.message.answer('Выберите кол-во звезд в отеле', reply_markup=hotel_stars_btn)
     
     else:
         async with state.proxy() as data:
@@ -488,19 +495,19 @@ async def arrival_day_load(callback: types.CallbackQuery, callback_data: dict, s
             data['arrival_day'] = date.strftime("%d/%m/%Y")
         await FSMHotel.next()
         await callback.message.delete()
-        await callback.message.answer('Выберите количество ночей:', reply_markup=tour_night)
+        await callback.message.answer('Напишите количество ночей:')
 
 
 # @dp.callback_query_handler(state=FSMHotel.amount_of_nights)
-async def amount_of_nights_load(callback: types.CallbackQuery, state=FSMContext):
+async def amount_of_nights_load(message: types.Message, state=FSMContext):
     async with state.proxy() as data:
-        data['amount_of_nights'] = callback.data
+        data['amount_of_nights'] = int(message.text)
     await FSMHotel.next()
-    await callback.message.delete()
-    await callback.message.answer('Количество человек:', reply_markup=number_of_persons_btn)
+    await message.delete()
+    await message.answer('Количество человек:', reply_markup=number_of_persons_btn)
 
 
-# @dp.callback_query_handler(state=FSMHotel.amount_of_person)
+# @dp.message_handler(state=FSMHotel.amount_of_person)
 async def hotel_number_of_persons_load(callback: types.CallbackQuery, state=FSMContext):
     async with state.proxy() as data:
          data['number_of_persons'] = callback.data
@@ -566,7 +573,7 @@ class FSMExchange(StatesGroup):
 async def exchange(callback: types.CallbackQuery):
      await callback.message.delete()
      await callback.message.answer('Поможем обменять вашу валюту на Вьетнамские донги.\nПолучение денежных средств доступно во всех городах Вьетнама через банкоматы.'
-                                   '\nДоставка и самовывоз доступны только в г.Нячанг.\nПриступим?', reply_markup=exchange_btn)
+                                   '\nДоставка и самовывоз доступны только в г.Нячанг.\n\nПриступим?', reply_markup=exchange_btn)
 
 
 # @dp.callback_query_handler(text=['exchange_yes'], state=None)
@@ -609,7 +616,7 @@ async def amount_load(message: types.Message, state=FSMContext):
             sum = rate * int(amount)
         await FSMExchange.next()
         await message.delete()
-        await message.answer(f'Вы получите {sum} VND', reply_markup=approve_btn)
+        await message.answer(f'Вы получите {math.floor(sum)} VND', reply_markup=approve_btn)
     except ValueError:
         await FSMExchange.amount.set()
         await message.answer('Введите число цифрами:')
@@ -663,13 +670,14 @@ async def delivery_load(callback: types.CallbackQuery, state=FSMContext):
 
 def register_client_handler(dp: Dispatcher):
     dp.register_message_handler(start_message, commands=['start'])
-    dp.register_message_handler(menu, commands=['menu'])
+    dp.register_message_handler(menu, commands=['menu'], state="*")
     dp.register_callback_query_handler(menu_2, text=['main_menu'])
 
+    dp.register_message_handler(consultant, commands=['consultant'], state="*")
+    dp.register_callback_query_handler(consultant_2, text=['consultant'])
 
     dp.register_callback_query_handler(evisa_menu, text=['evisa'])
     dp.register_callback_query_handler(visa_start, text=['visa_yes'], state=None)
-    dp.register_callback_query_handler(visa_load_type, state=FSMVisa.visa)
     dp.register_callback_query_handler(visa_load_date, simple_cal_callback.filter(), state=FSMVisa.date)
     dp.register_callback_query_handler(visa_load_location, state=FSMVisa.location)
     dp.register_message_handler(visa_load_passport, content_types=['photo'], state=FSMVisa.passport)
@@ -710,7 +718,7 @@ def register_client_handler(dp: Dispatcher):
     dp.register_message_handler(hotel_name_load, state=FSMHotel.hotel_name)
     dp.register_callback_query_handler(stars_load, state=FSMHotel.stars)
     dp.register_callback_query_handler(arrival_day_load, simple_cal_callback.filter(), state=FSMHotel.arrival_day)
-    dp.register_callback_query_handler(amount_of_nights_load, state=FSMHotel.amount_of_nights)
+    dp.register_message_handler(amount_of_nights_load, state=FSMHotel.amount_of_nights)
     dp.register_callback_query_handler(hotel_number_of_persons_load, state=FSMHotel.amount_of_person)
     dp.register_callback_query_handler(hotel_children_load, state=FSMHotel.children)
     dp.register_callback_query_handler(hotel_number_of_childrens_load, state=FSMHotel.number_of_childrens)

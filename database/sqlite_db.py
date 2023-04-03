@@ -4,7 +4,7 @@ from aiogram import types
 from handlers.admin import ID
 from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton, \
     InlineKeyboardButton, InlineKeyboardMarkup
-from keyboard.admin_kb import order_visa_btn, order_exchange_btn, order_tour_btn, order_charter_btn, order_hotel_btn
+from keyboard.admin_kb import order_visa_btn, order_exchange_btn, order_tour_btn, order_charter_btn, order_hotel_btn, order_consultant_btn
 
 def sql_start():
     global base, cur
@@ -12,22 +12,51 @@ def sql_start():
     cur = base.cursor()
     if base:
         print("Database connected successfully")
-    base.execute('CREATE TABLE IF NOT EXISTS visa(user_id INTEGER, visa TEXT, date TEXT, location TEXT, id TEXT, photo TEXT)')
+    base.execute('CREATE TABLE IF NOT EXISTS visa(user_id INTEGER, date TEXT, location TEXT, id TEXT, photo TEXT)')
     base.execute('CREATE TABLE IF NOT EXISTS exchange(user_id INTEGER, currency TEXT, city TEXT, amount INTEGER, aprove TEXT, delivery TEXT)')
     base.execute('CREATE TABLE IF NOT EXISTS tour(user_id INTEGER, departure TEXT, resort TEXT, date_departure TEXT, amount_of_nights INTEGER, number_of_persons INTEGER, children TEXT, number_of_childrens INTEGER, age_children TEXT, hotel TEXT, hotel_name TEXT, stars TEXT)')
     base.execute('CREATE TABLE IF NOT EXISTS charter(user_id INTEGER, departure TEXT, arrival TEXT, date_departure TEXT, one_two_way TEXT, date_back TEXT, number_of_persons INTEGER, children TEXT, number_of_childrens INTEGER)')
     base.execute('CREATE TABLE IF NOT EXISTS hotel(user_id INTEGER, resort TEXT, hotel TEXT, hotel_name TEXT, stars TEXT, arrival_day TEXT, amount_of_nights INTEGER, amount_of_person INTEGER, children TEXT, number_of_childrens INTEGER, age_children TEXT)')
     base.execute('CREATE TABLE IF NOT EXISTS currency(rub INTEGER, kzt INTEGER, kgs INTEGER, uzs INTEGER, usdt INTEGER)')
+    base.execute('CREATE TABLE IF NOT EXISTS consultant(user_id INTEGER)')
     base.commit()
 
+# ____________CONSULTANT_____________________________
 
+
+async def add_consultant(user_id):
+    with base:
+        cur.execute('INSERT INTO consultant VALUES (?)', (user_id, ))
+    await bot.send_message(ID, 'У вас новая заявка консультацию', reply_markup=order_consultant_btn)
+
+
+async def one_consultant(user_id):
+    with base:
+        cur.execute('SELECT * FROM consultant WHERE user_id=?', (user_id, ))
+        return cur.fetchone()
+
+
+async def all_consultant():
+    with base:
+        cur.execute('SELECT * FROM consultant')
+        return cur.fetchall()
+    
+async def delete_consultant(user_id):
+    with base:
+        cur.execute('DELETE FROM consultant WHERE user_id=?', (user_id, ))
+    
+    
+def count_consultant():
+    with base:
+        cur.execute('SELECT COUNT(user_id) FROM consultant')
+        return cur.fetchone()
 
 # ____________EVISA_____________________________
 
 
 async def add_visa(state):
     async with state.proxy() as data:
-        cur.execute('INSERT INTO visa VALUES (?, ?, ?, ?, ?, ?)', tuple(data.values()))
+        cur.execute('INSERT INTO visa VALUES (?, ?, ?, ?, ?)', tuple(data.values()))
         base.commit()
     await bot.send_message(ID, 'У вас новая заявка на оформление евизы', reply_markup=order_visa_btn)
     

@@ -8,12 +8,13 @@ main_kb.row(main_kb)
 
 
 inline_menu = InlineKeyboardMarkup(row_width=1)
-inline_charter_btn = InlineKeyboardButton('Чартерные рейсы', callback_data='charter')
-inline_tour_btn = InlineKeyboardButton('Пакетные туры', callback_data='tour')
-inline_hotel_btn = InlineKeyboardButton('Бронирование отелей', callback_data='hotel')
-inline_visa_btn = InlineKeyboardButton('Оформление Евизы во Вьетнам ', callback_data='evisa')
-inline_exchange_btn = InlineKeyboardButton('Обмен валюты', callback_data='exchange')
-inline_menu.add(inline_charter_btn).add(inline_tour_btn).add(inline_hotel_btn).add(inline_visa_btn).add(inline_exchange_btn)
+inline_charter_btn = InlineKeyboardButton('✈️ Чартерные рейсы', callback_data='charter')
+inline_tour_btn = InlineKeyboardButton('🌴 Пакетные туры', callback_data='tour')
+inline_hotel_btn = InlineKeyboardButton('🏨 Бронирование отелей', callback_data='hotel')
+inline_visa_btn = InlineKeyboardButton('🛂 Оформление Евизы во Вьетнам ', callback_data='evisa')
+inline_exchange_btn = InlineKeyboardButton('💰 Обмен валюты', callback_data='exchange')
+inline_consultant_btn = InlineKeyboardButton('👨‍💻 Консультация менеджера', callback_data='consultant')
+inline_menu.add(inline_charter_btn).add(inline_tour_btn).add(inline_hotel_btn).add(inline_visa_btn).add(inline_exchange_btn).add(inline_consultant_btn)
 
 # ____________EVISA_____________________________
 
@@ -73,7 +74,7 @@ three_btn = InlineKeyboardButton('3', callback_data='3')
 four_btn = InlineKeyboardButton('4', callback_data='4')
 five_btn = InlineKeyboardButton('5', callback_data='5')
 six_btn = InlineKeyboardButton('6', callback_data='6')
-number_of_persons_btn.row(one_btn, two_btn, three_btn, four_btn, five_btn, six_btn)
+number_of_persons_btn.row(one_btn, two_btn, three_btn).row(four_btn, five_btn, six_btn)
 
 number_of_childrens_btn = InlineKeyboardMarkup(row_width=1)
 one_btn = InlineKeyboardButton('1', callback_data='1')
@@ -102,11 +103,14 @@ tour_resort.add(nha_trang).add(phukok).add(muyne)
 
 tour_night = InlineKeyboardMarkup(row_width=1)
 seven_btn = InlineKeyboardButton('7', callback_data='7')
+eight_btn = InlineKeyboardButton('8', callback_data='8')
 nine_btn = InlineKeyboardButton('9', callback_data='9')
+ten_btn = InlineKeyboardButton('10', callback_data='10')
 eleven_btn = InlineKeyboardButton('11', callback_data='11')
 twelve_btn = InlineKeyboardButton('12', callback_data='12')
+thirteen_btn = InlineKeyboardButton('13', callback_data='13')
 fourteen_btn = InlineKeyboardButton('14', callback_data='14')
-tour_night.row(seven_btn, nine_btn, eleven_btn, twelve_btn, fourteen_btn)
+tour_night.row(seven_btn, eight_btn, nine_btn, ten_btn).row(eleven_btn, twelve_btn, thirteen_btn, fourteen_btn)
 
 
 hotel_stars_btn = InlineKeyboardMarkup(row_width=1)

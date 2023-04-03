@@ -4,11 +4,12 @@ from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButt
     InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from dispatcher import bot, dp
-from keyboard.admin_kb import currency_btn, gen_inline_visa_orders, gen_inline_charter_orders, gen_inline_hotel_orders, gen_inline_tour_orders, gen_inline_exchange_orders, gen_inline_main_menu
+from keyboard.admin_kb import currency_btn, gen_inline_visa_orders, gen_inline_charter_orders, gen_inline_hotel_orders, gen_inline_tour_orders, \
+        gen_inline_exchange_orders, gen_inline_main_menu, gen_inline_consultant_orders
 from database import sqlite_db
 
 
-ID = 285144226
+ID = 245955512
 
 class FSMAddcurrency(StatesGroup):
     rub = State()
@@ -84,11 +85,33 @@ async def usdt_load(message: types.Message, state: FSMContext):
     await state.finish()
     
 
+# @dp.callback_query_handler(commands='consultant_order')
+async def consultant_order(callback: types.CallbackQuery):
+    await callback.message.delete()
+    data = await sqlite_db.all_consultant()
+    await callback.message.answer('Заявки на консультацию', reply_markup=gen_inline_consultant_orders(data))
+
+
+# @dp.callback_query_handler(lambda x: x.data and x.data.startswith('one_consultant|'))
+async def consultant_one_order(callback: types.CallbackQuery):
+    await callback.message.delete()
+    order = await sqlite_db.one_consultant(callback.data.split('|')[1])
+    chat_id = callback.data.split('|')[1]
+    button_url = f'tg://user?id={chat_id}'
+    markup = InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton(text='написать пользователю', url=button_url))
+    markup.add(InlineKeyboardButton(text='Удалить заявку', callback_data=f'delete|consultant|{order[0]}'))
+    markup.add(InlineKeyboardButton(text='Назад', callback_data='consultant_order'))
+    await bot.send_message(ID, f'Заявка на консультацию {order[0]}', reply_markup=markup)
+
+
+
 # @dp.message_handler(commands='evisa_order')
 async def evisa_order(callback: types.CallbackQuery):
     await callback.message.delete()
     data = await sqlite_db.all_visa()
     await callback.message.answer('Заявки на оформление ЕВИЗЫ:', reply_markup=gen_inline_visa_orders(data))
+
 
 
 # @dp.callback_query_handler(lambda x: x.data and x.data.startswith('visa|'))
@@ -99,10 +122,10 @@ async def evisa_one_order(callback: types.CallbackQuery):
     button_url = f'tg://user?id={chat_id}'
     markup = InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton(text='написать пользователю', url=button_url))
-    markup.add(InlineKeyboardButton(text='Удалить заявку', callback_data=f'delete|evisa|{order[0]}|{order[2]}'))
+    markup.add(InlineKeyboardButton(text='Удалить заявку', callback_data=f'delete|evisa|{order[0]}|{order[1]}'))
     markup.add(InlineKeyboardButton(text='Назад', callback_data='evisa_order'))
-    await bot.send_photo(ID, order[4])
-    await bot.send_photo(ID, order[5], f'Заявка на оформление {order[1]} E-Visa на {order[2]}', reply_markup=markup)
+    await bot.send_photo(ID, order[3])
+    await bot.send_photo(ID, order[4], f'Заявка на оформление E-Visa на {order[1]}', reply_markup=markup)
    
 
 # @dp.callback_query_handler(lambda x: x.data and x.data.startswith('delete|'))
@@ -128,6 +151,10 @@ async def delete_order(callback: types.CallbackQuery):
     elif data[1] == 'hotel':
         await sqlite_db.delete_hotel(data[2], data[3])
         await hotel_order(callback)
+
+    elif data[1] == 'consultant':
+        await sqlite_db.delete_consultant(data[2])
+        await consultant_order(callback)
     
 
 
@@ -235,6 +262,9 @@ def register_admin_handler(dp: Dispatcher):
 
 
     dp.register_callback_query_handler(admin_menu, text='admin_menu')
+
+    dp.register_callback_query_handler(consultant_order, text='consultant_order')
+    dp.register_callback_query_handler(consultant_one_order, lambda x: x.data and x.data.startswith('one_consultant|'))
 
 
     dp.register_callback_query_handler(evisa_order, text='evisa_order')
