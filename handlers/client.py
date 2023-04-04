@@ -3,14 +3,13 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardMarkup
 from dispatcher import bot, dp
-from keyboard.client_kb import inline_menu, visa_btn, visa_cities, visa_type, charter_btn, charter_cities, charter_way_btn, yes_no_btn, number_of_persons_btn, number_of_childrens_btn
+from keyboard.client_kb import inline_menu, visa_btn, visa_cities, charter_btn, charter_cities, yes_no_btn, number_of_persons_btn, number_of_childrens_btn
 from keyboard.client_kb import tour_btn, tour_cities, tour_resort, tour_night, hotel_stars_btn, hotel_btn, exchange_btn, currency_btn, exchange_cities, exchange_delivery, approve_btn
 from keyboard.admin_kb import gen_inline_main_menu
 from handlers.admin import ID
 from aiogram_calendar import simple_cal_callback, SimpleCalendar
 from database import sqlite_db
 import math
-
 
 
 # @dp.message_handler(commands=['start'])
@@ -50,7 +49,6 @@ async def consultant_2(callback: types.CallbackQuery):
     await callback.message.answer('Ваша заявки принята, консультант свяжется с вами в ближайшее время')
     await sqlite_db.add_consultant(callback.from_user.id)
     
-
 
 # ____________EVISA_____________________________
 
@@ -130,7 +128,8 @@ class FSMCharter(StatesGroup):
 # @dp.callback_query_handler(text=['charter'])
 async def charter(callback: types.CallbackQuery):
      await callback.message.delete()
-     await callback.message.answer('⚠️ Авиабилеты на чартерные рейсы обмену и возврату не подлежат.\n\n🧳 Включен багаж - 20 кг, ручная кладь - 8 кг\n\nПриступим?', reply_markup=charter_btn)
+     await callback.message.answer('⚠️ Авиабилеты на чартерные рейсы обмену и возврату не подлежат.\n\n'
+                                   '🧳 Включен багаж - 20 кг, ручная кладь - 8 кг\n\nПриступим?', reply_markup=charter_btn)
 
 
 # @dp.callback_query_handler(text=['charter_yes'], state=None)
@@ -264,7 +263,8 @@ class FSMTour(StatesGroup):
 # @dp.callback_query_handler(text=['tour'])
 async def tour(callback: types.CallbackQuery):
      await callback.message.delete()
-     await callback.message.answer('Каждый тур включает в себя:\n\n✈️ Авиаперелет туда-обратно\n🏨 Проживание\n😋 Питание (опция)\n🚌 Трансфер\n🏥 Мед.страховка\n\nПриступим?', reply_markup=tour_btn)
+     await callback.message.answer('Каждый тур включает в себя:\n\n✈️ Авиаперелет туда-обратно\n🏨 Проживание\n😋'
+                                   'Питание (опция)\n🚌 Трансфер\n🏥 Мед.страховка\n\nПриступим?', reply_markup=tour_btn)
 
 
 # @dp.callback_query_handler(text=['tour_yes'], state=None)
@@ -572,8 +572,9 @@ class FSMExchange(StatesGroup):
 # @dp.callback_query_handler(text=['exchange'])
 async def exchange(callback: types.CallbackQuery):
      await callback.message.delete()
-     await callback.message.answer('Поможем обменять вашу валюту на Вьетнамские донги.\nПолучение денежных средств доступно во всех городах Вьетнама через банкоматы.'
-                                   '\nДоставка и самовывоз доступны только в г.Нячанг.\n\nПриступим?', reply_markup=exchange_btn)
+     await callback.message.answer('Поможем обменять вашу валюту на Вьетнамские донги.\nПолучение денежных средств доступно '
+                                   'во всех городах Вьетнама через банкоматы. \nДоставка и самовывоз доступны только в г.Нячанг.'
+                                   '\n\nПриступим?', reply_markup=exchange_btn)
 
 
 # @dp.callback_query_handler(text=['exchange_yes'], state=None)
@@ -662,7 +663,6 @@ async def delivery_load(callback: types.CallbackQuery, state=FSMContext):
         await callback.message.delete()
         await callback.message.answer('Спасибо, ваша заявка приянта, оператор свяжется с вами в ближайшее время')
         await state.finish()
-
 
 
 # __________________Регистрация хендлеров _________________________

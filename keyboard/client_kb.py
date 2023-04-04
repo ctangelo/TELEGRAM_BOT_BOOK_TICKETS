@@ -1,5 +1,4 @@
-from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton, \
-    InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from dispatcher import bot
 
 
@@ -16,20 +15,12 @@ inline_exchange_btn = InlineKeyboardButton('💰 Обмен валюты', callb
 inline_consultant_btn = InlineKeyboardButton('👨‍💻 Консультация менеджера', callback_data='consultant')
 inline_menu.add(inline_charter_btn).add(inline_tour_btn).add(inline_hotel_btn).add(inline_visa_btn).add(inline_exchange_btn).add(inline_consultant_btn)
 
-# ____________EVISA_____________________________
-
+# __________________EVISA__________________________
 
 visa_btn = InlineKeyboardMarkup(row_width=1)
 yes_visa_btn = InlineKeyboardButton('Да', callback_data='visa_yes')
 menu_btn = InlineKeyboardButton('Нет, вернуться в меню', callback_data='main_menu')
 visa_btn.add(yes_visa_btn).add(menu_btn)
-
-visa_type = InlineKeyboardMarkup(row_width=1)
-visa_simple_btn = InlineKeyboardButton('Обычная - 3 рабочих дня (40$)', callback_data='обычная')
-visa_express_1_btn = InlineKeyboardButton('Срочная - 2 рабочих дня (80$)', callback_data='экспресс 2 дня')
-visa_express_2_btn = InlineKeyboardButton('Срочная - 1 рабочий день (90$)', callback_data='экспресс 1 ден')
-visa_express_3_btn = InlineKeyboardButton('Срочная - 4 часа (120$)', callback_data='экспресс 4 часа')
-visa_type.add(visa_simple_btn).add(visa_express_1_btn).add(visa_express_2_btn).add(visa_express_3_btn)
 
 visa_cities = InlineKeyboardMarkup(row_width=1)
 bo_y_btn = InlineKeyboardButton('Bo-Y', callback_data='BO-Y')
@@ -41,12 +32,13 @@ Moc_Bai_btn = InlineKeyboardButton('Moc Bai Landport ', callback_data='Moc Bai L
 Da_Nang_btn = InlineKeyboardButton('Da Nang Airport', callback_data='Da Nang Airport')
 visa_cities.add(bo_y_btn, Tan_Son_btn, PhuQuoc_btn, Hanoi_btn, Nhatrang_btn, Moc_Bai_btn, Da_Nang_btn)
 
-# __________________Чартерные билеты_________________________
+# _______________Чартерные билеты_________________
 
 charter_btn = InlineKeyboardMarkup(row_width=1)
 yes_charter_btn= InlineKeyboardButton('Да', callback_data='charter_yes')
 no_charter_btn = InlineKeyboardButton('Нет, вернуться в меню', callback_data='main_menu')
-charter_btn.add(yes_charter_btn).add(no_charter_btn)
+schedule_btn = InlineKeyboardButton('Расписание', url='https://taplink.cc/chartervietnam')
+charter_btn.add(yes_charter_btn).add(no_charter_btn).add(schedule_btn)
 
 charter_cities = InlineKeyboardMarkup(row_width=1)
 nha_trang = InlineKeyboardButton('Нячанг', callback_data='Нячанг')
@@ -56,16 +48,10 @@ astana = InlineKeyboardButton('Астана', callback_data='Астана')
 tashkent = InlineKeyboardButton('Ташкент', callback_data='Ташкент')
 charter_cities.add(nha_trang).add(phukok).add(almaty).add(astana).add(tashkent)
 
-charter_way_btn = InlineKeyboardMarkup(row_width=1)
-one_way = InlineKeyboardButton('В одну сторону', callback_data='в одну сторону')
-two_way = InlineKeyboardButton('В обе стороны', callback_data='В обе стороны')
-charter_way_btn.add(one_way).add(two_way)
-
 yes_no_btn = InlineKeyboardMarkup(row_width=1)
 yes_btn = InlineKeyboardButton('Да', callback_data='yes')
 no_btn = InlineKeyboardButton('Нет', callback_data='no')
 yes_no_btn.add(yes_btn).add(no_btn)
-
 
 number_of_persons_btn = InlineKeyboardMarkup(row_width=1)
 one_btn = InlineKeyboardButton('1', callback_data='1')
@@ -82,7 +68,7 @@ two_btn = InlineKeyboardButton('2', callback_data='2')
 three_btn = InlineKeyboardButton('3', callback_data='3')
 number_of_childrens_btn.row(one_btn, two_btn, three_btn)
 
-# __________________Пакетные Туры_________________________
+# __________________Пакетные Туры_______________________
 
 tour_btn = InlineKeyboardMarkup(row_width=1)
 yes_tour_btn= InlineKeyboardButton('Да', callback_data='tour_yes')
@@ -112,20 +98,18 @@ thirteen_btn = InlineKeyboardButton('13', callback_data='13')
 fourteen_btn = InlineKeyboardButton('14', callback_data='14')
 tour_night.row(seven_btn, eight_btn, nine_btn, ten_btn).row(eleven_btn, twelve_btn, thirteen_btn, fourteen_btn)
 
-
 hotel_stars_btn = InlineKeyboardMarkup(row_width=1)
 three_btn = InlineKeyboardButton('3', callback_data='3')
 four_btn = InlineKeyboardButton('4', callback_data='4')
 five_btn = InlineKeyboardButton('5', callback_data='5')
 hotel_stars_btn.row(three_btn, four_btn, five_btn)
 
-# __________________Бронирование отелей_________________________
+# ________________Бронирование отелей____________________
 
 hotel_btn = InlineKeyboardMarkup(row_width=1)
 yes_hotel_btn= InlineKeyboardButton('Да', callback_data='hotel_yes')
 no_hotel_btn = InlineKeyboardButton('Нет, вернуться в меню', callback_data='main_menu')
 hotel_btn.add(yes_hotel_btn).add(no_hotel_btn)
-
 
 # __________________Обмен валюты_________________________
 
@@ -142,7 +126,6 @@ uzs_btn = InlineKeyboardButton('UZS', callback_data='kzt')
 usdt_btn = InlineKeyboardButton('USDT', callback_data='usdt')
 currency_btn.row(rub_btn, kzt_btn, kgs_btn, uzs_btn, usdt_btn)
 
-
 exchange_cities = InlineKeyboardMarkup(row_width=1)
 nha_trang = InlineKeyboardButton('Нячанг', callback_data='нячанг')
 muyne = InlineKeyboardButton('Муйне', callback_data='муйне')
@@ -152,7 +135,6 @@ hochimin = InlineKeyboardButton('Хошимин', callback_data='хошимин'
 hanoi = InlineKeyboardButton('Ханой', callback_data='ханой')
 exchange_cities.row(nha_trang, phukok, muyne) 
 exchange_cities.row(danang, hochimin, hanoi)
-
 
 exchange_delivery = InlineKeyboardMarkup(row_width=1)
 delivery_cash = InlineKeyboardButton('Доставка наличные', callback_data='доставка наличные')

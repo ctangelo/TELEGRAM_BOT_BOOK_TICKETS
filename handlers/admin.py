@@ -1,7 +1,6 @@
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
-from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton, \
-    InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from dispatcher import bot, dp
 from keyboard.admin_kb import currency_btn, gen_inline_visa_orders, gen_inline_charter_orders, gen_inline_hotel_orders, gen_inline_tour_orders, \
@@ -9,7 +8,7 @@ from keyboard.admin_kb import currency_btn, gen_inline_visa_orders, gen_inline_c
 from database import sqlite_db
 
 
-ID = "ADMIN_ID"
+ID = 'ADMIN_ID'
 
 class FSMAddcurrency(StatesGroup):
     rub = State()
@@ -17,8 +16,6 @@ class FSMAddcurrency(StatesGroup):
     kgs = State()
     uzs = State()
     usdt = State()
-
-# Отправка уведомления при новой заявке
 
 
 # @dp.callback_query_handler(commands=['admin_menu'])
@@ -37,7 +34,6 @@ async def currency_start(callback: types.CallbackQuery):
     
     await FSMAddcurrency.rub.set()
     await callback.message.answer('Сколько VND за 10.000 RUB?')
-
 
 
 # @dp.message_handler(state=FSMAddcurrency.rub)
@@ -105,13 +101,11 @@ async def consultant_one_order(callback: types.CallbackQuery):
     await bot.send_message(ID, f'Заявка на консультацию {order[0]}', reply_markup=markup)
 
 
-
 # @dp.message_handler(commands='evisa_order')
 async def evisa_order(callback: types.CallbackQuery):
     await callback.message.delete()
     data = await sqlite_db.all_visa()
     await callback.message.answer('Заявки на оформление ЕВИЗЫ:', reply_markup=gen_inline_visa_orders(data))
-
 
 
 # @dp.callback_query_handler(lambda x: x.data and x.data.startswith('visa|'))
@@ -157,7 +151,6 @@ async def delete_order(callback: types.CallbackQuery):
         await consultant_order(callback)
     
 
-
 # @dp.callback_query_handler(text='charter_order')
 async def charter_order(callback: types.CallbackQuery):
     await callback.message.delete()
@@ -176,10 +169,11 @@ async def charter_one_order(callback: types.CallbackQuery):
     markup.add(InlineKeyboardButton(text='Удалить заявку', callback_data=f'delete|charter|{order[0]}|{order[3]}'))
     markup.add(InlineKeyboardButton(text='Назад', callback_data='charter_order'))
     if order[4] == 'в одну':
-        await callback.message.answer(f'Чартер\n {order[1]} - {order[2]} {order[4]} сторону\nДата вылета:{order[3]}\nКол-во человек:{order[6]}\nДети:{order[7]} ({order[8]})', reply_markup=markup)
+        await callback.message.answer(f'Чартер\n {order[1]} - {order[2]} {order[4]} сторону\nДата вылета:{order[3]}\n'
+                                      'Кол-во человек:{order[6]}\nДети:{order[7]} ({order[8]})', reply_markup=markup)
     else:
-        await callback.message.answer(f'Чартер\n {order[1]} - {order[2]} - {order[1]}\nДата:{order[3]} - {order[5]}\nКол-во человек:{order[6]}\nДети:{order[7]} ({order[8]})', reply_markup=markup)
-
+        await callback.message.answer(f'Чартер\n {order[1]} - {order[2]} - {order[1]}\nДата:{order[3]} - {order[5]}\n'
+                                      'Кол-во человек:{order[6]}\nДети:{order[7]} ({order[8]})', reply_markup=markup)
 
 
 # @dp.callback_query_handler(text='hotel_order')
@@ -202,7 +196,6 @@ async def hotel_one_order(callback: types.CallbackQuery):
     
     await callback.message.answer(f'Отель\nКурорт: {order[1]}\nНазвание: {order[2]} ({order[4]} звезды)\nДата:{order[5]} на {order[6]} ночей\n'
                                   f'Кол-во человек:{order[7]}\nДети:{order[9]} ({order[10]})', reply_markup=markup)
-
 
 
 # @dp.callback_query_handler(text='tour_order')
@@ -246,9 +239,6 @@ async def exchange_one_order(callback: types.CallbackQuery):
     markup.add(InlineKeyboardButton(text='Назад', callback_data='exchange_order'))
     
     await callback.message.answer(f'Обмен\n{order[3]} {order[1]}\nГород: {order[2]}\nСпособо получения:{order[5]}', reply_markup=markup)
-
-
-
 
 
 def register_admin_handler(dp: Dispatcher):

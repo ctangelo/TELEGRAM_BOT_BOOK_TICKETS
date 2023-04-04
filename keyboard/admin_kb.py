@@ -1,8 +1,6 @@
-from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton, \
-    InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from dispatcher import bot
 from database import sqlite_db
-
 
 
 def gen_inline_main_menu():

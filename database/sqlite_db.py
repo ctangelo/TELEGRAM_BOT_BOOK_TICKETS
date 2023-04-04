@@ -1,9 +1,6 @@
 import sqlite3 as sq
 from dispatcher import bot
-from aiogram import types
 from handlers.admin import ID
-from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton, \
-    InlineKeyboardButton, InlineKeyboardMarkup
 from keyboard.admin_kb import order_visa_btn, order_exchange_btn, order_tour_btn, order_charter_btn, order_hotel_btn, order_consultant_btn
 
 def sql_start():
@@ -212,7 +209,6 @@ async def delete_hotel(user_id, arrival_day):
 # ____________currency_____________________________
 
 
-
 async def add_currency(state):
     async with state.proxy() as data:
         cur.execute('DELETE FROM currency')
@@ -225,4 +221,3 @@ def check_currency(currency):
         
         return cur.fetchone()[0]
     
-
