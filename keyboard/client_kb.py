@@ -32,6 +32,19 @@ Moc_Bai_btn = InlineKeyboardButton('Moc Bai Landport ', callback_data='Moc Bai L
 Da_Nang_btn = InlineKeyboardButton('Da Nang Airport', callback_data='Da Nang Airport')
 visa_cities.add(bo_y_btn, Tan_Son_btn, PhuQuoc_btn, Hanoi_btn, Nhatrang_btn, Moc_Bai_btn, Da_Nang_btn)
 
+
+visa_90_btn = InlineKeyboardMarkup(row_width=1)
+visa_90_single = InlineKeyboardButton('90 дней Single', callback_data='single')
+visa_90_multi = InlineKeyboardButton('90 дней Multiple', callback_data='multiply')
+visa_90_btn.add(visa_90_single, visa_90_multi)
+
+
+speed_visa_btn = InlineKeyboardMarkup(row_width=1)
+visa_5 = InlineKeyboardButton('Стандартное оформление - 5 раб дней', callback_data='Обычная 5 дней')
+visa_2 = InlineKeyboardButton('Срочное оформление - 2 рабочий дня', callback_data='Срочная 2 дня')
+visa_1 = InlineKeyboardButton('Срочное оформление - 1 рабочий день', callback_data='Срочная 1 день')
+speed_visa_btn.add(visa_5, visa_2, visa_1)
+
 # _______________Чартерные билеты_________________
 
 charter_btn = InlineKeyboardMarkup(row_width=1)
@@ -113,36 +126,6 @@ hotel_btn.add(yes_hotel_btn).add(no_hotel_btn)
 
 # __________________Обмен валюты_________________________
 
-exchange_btn = InlineKeyboardMarkup(row_width=1)
-yes_exchange_btn = InlineKeyboardButton('Да', callback_data='exchange_yes')
-no_exchange_btn = InlineKeyboardButton('Нет, вернуться в меню', callback_data='main_menu')
-exchange_btn.add(yes_exchange_btn).add(no_exchange_btn)
-
-currency_btn = InlineKeyboardMarkup(row_width=1)
-rub_btn = InlineKeyboardButton('RUB', callback_data='rub')
-kzt_btn = InlineKeyboardButton('KZT', callback_data='kzt')
-kgs_btn = InlineKeyboardButton('KGS', callback_data='kgs')
-uzs_btn = InlineKeyboardButton('UZS', callback_data='kzt')
-usdt_btn = InlineKeyboardButton('USDT', callback_data='usdt')
-currency_btn.row(rub_btn, kzt_btn, kgs_btn, uzs_btn, usdt_btn)
-
-exchange_cities = InlineKeyboardMarkup(row_width=1)
-nha_trang = InlineKeyboardButton('Нячанг', callback_data='нячанг')
-muyne = InlineKeyboardButton('Муйне', callback_data='муйне')
-phukok = InlineKeyboardButton('о.Фукуок', callback_data='о.фукуок')
-danang = InlineKeyboardButton('Дананг', callback_data='дананг')
-hochimin = InlineKeyboardButton('Хошимин', callback_data='хошимин')
-hanoi = InlineKeyboardButton('Ханой', callback_data='ханой')
-exchange_cities.row(nha_trang, phukok, muyne) 
-exchange_cities.row(danang, hochimin, hanoi)
-
-exchange_delivery = InlineKeyboardMarkup(row_width=1)
-delivery_cash = InlineKeyboardButton('Доставка наличные', callback_data='доставка наличные')
-pickup = InlineKeyboardButton('Самовывоз', callback_data='самовывоз')
-atm = InlineKeyboardButton('Получить через банкомат', callback_data='банкомат')
-exchange_delivery.add(delivery_cash, pickup, atm)
-
-approve_btn = InlineKeyboardMarkup(row_width=1)
-approve = InlineKeyboardButton('Подтвердить', callback_data='aprove')
-decline = InlineKeyboardButton('Отменить', callback_data='decline')
-approve_btn.add(approve, decline)
+back_btn = InlineKeyboardMarkup(row_width=1)
+back = InlineKeyboardButton('Назад', callback_data='main_menu')
+back_btn.add(back)

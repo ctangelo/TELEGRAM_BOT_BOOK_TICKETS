@@ -9,17 +9,25 @@ def sql_start():
     cur = base.cursor()
     if base:
         print("Database connected successfully")
-    base.execute('CREATE TABLE IF NOT EXISTS visa(user_id INTEGER, date TEXT, location TEXT, id TEXT, photo TEXT)')
-    base.execute('CREATE TABLE IF NOT EXISTS exchange(user_id INTEGER, currency TEXT, city TEXT, amount INTEGER, aprove TEXT, delivery TEXT)')
+    
+    base.execute('CREATE TABLE IF NOT EXISTS visa(user_id INTEGER, visa TEXT, visa_2 TEXT, name TEXT, occupation TEXT, citizenship TEXT, passport_number INTEGER, religion TEXT, old_passport TEXT, double_citizenship TEXT, home_adress TEXT, phone INTEGER, contact_person TEXT, job TEXT, adress_vietnam TEXT, vietnam_stay_last_year_date1 TEXT, vietnam_stay_last_year_date2 TEXT, budget TEXT, insurance TEXT, date TEXT, location TEXT, id TEXT, photo TEXT)')
     base.execute('CREATE TABLE IF NOT EXISTS tour(user_id INTEGER, departure TEXT, resort TEXT, date_departure TEXT, amount_of_nights INTEGER, number_of_persons INTEGER, children TEXT, number_of_childrens INTEGER, age_children TEXT, hotel TEXT, hotel_name TEXT, stars TEXT)')
     base.execute('CREATE TABLE IF NOT EXISTS charter(user_id INTEGER, departure TEXT, arrival TEXT, date_departure TEXT, one_two_way TEXT, date_back TEXT, number_of_persons INTEGER, children TEXT, number_of_childrens INTEGER)')
     base.execute('CREATE TABLE IF NOT EXISTS hotel(user_id INTEGER, resort TEXT, hotel TEXT, hotel_name TEXT, stars TEXT, arrival_day TEXT, amount_of_nights INTEGER, amount_of_person INTEGER, children TEXT, number_of_childrens INTEGER, age_children TEXT)')
-    base.execute('CREATE TABLE IF NOT EXISTS currency(rub INTEGER, kzt INTEGER, kgs INTEGER, uzs INTEGER, usdt INTEGER)')
     base.execute('CREATE TABLE IF NOT EXISTS consultant(user_id INTEGER)')
     base.commit()
 
 # ____________CONSULTANT_____________________________
 
+async def refresh_orders(table):
+    base = sq.connect('clients.db')
+    cur = base.cursor()
+    base.execute(f'DELETE FROM charter')
+    base.execute(f'DELETE FROM tour')
+    base.execute(f'DELETE FROM visa')
+    base.execute(f'DELETE FROM hotel')
+    base.execute(f'DELETE FROM consultant')
+    base.commit()
 
 async def add_consultant(user_id):
     with base:
@@ -53,7 +61,7 @@ def count_consultant():
 
 async def add_visa(state):
     async with state.proxy() as data:
-        cur.execute('INSERT INTO visa VALUES (?, ?, ?, ?, ?)', tuple(data.values()))
+        cur.execute('INSERT INTO visa VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', tuple(data.values()))
         base.commit()
     await bot.send_message(ID, 'У вас новая заявка на оформление евизы', reply_markup=order_visa_btn)
     
@@ -64,9 +72,9 @@ async def all_visa():
         cur.execute('SELECT * FROM visa')
         return cur.fetchall()
     
-async def one_visa(user_id, date):
+async def one_visa(user_id, name):
     with base:
-        cur.execute(f'SELECT * FROM visa WHERE (user_id = ?) AND (date = ?)', (user_id, date))
+        cur.execute(f'SELECT * FROM visa WHERE (user_id = ?) AND (name = ?)', (user_id, name))
         return cur.fetchone()
 
 
@@ -80,39 +88,6 @@ def count_visa():
         cur.execute('SELECT COUNT(user_id) from visa')
         return cur.fetchone()
     
-# ____________exchange_____________________________
-
-def count_exchange():
-    with base:
-        cur.execute('SELECT COUNT(user_id) from exchange')
-        return cur.fetchone()[0]
-
-
-async def add_exchange(state):
-    async with state.proxy() as data:
-        cur.execute('INSERT INTO exchange VALUES (?, ?, ?, ?, ?, ?)', tuple(data.values()))
-        base.commit()
-    await bot.send_message(ID, 'У вас новая заявка на обмен валюты', reply_markup=order_exchange_btn)
-
-
-async def see_exchange():
-    with base:
-        cur.execute('SELECT * FROM exchange')
-        return cur.fetchall()
-    
-
-async def one_exchange(user_id, amount):
-    with base:
-        cur.execute(f'SELECT * FROM exchange WHERE (user_id = ?) AND (amount = ?)', (user_id, amount))
-        return cur.fetchone()
-
-
-async def delete_exchange(user_id, amount):
-    with base:
-        cur.execute('DELETE FROM exchange WHERE (user_id = ?) AND (amount = ?)', (user_id, amount))
-
-
-
 # ____________tour_____________________________
 
 def count_tour():
@@ -204,20 +179,3 @@ async def one_hotel(user_id, arrival_day):
 async def delete_hotel(user_id, arrival_day):
     with base:
         cur.execute('DELETE FROM hotel WHERE (user_id = ?) AND (arrival_day = ?)', (user_id, arrival_day))
-
-
-# ____________currency_____________________________
-
-
-async def add_currency(state):
-    async with state.proxy() as data:
-        cur.execute('DELETE FROM currency')
-        cur.execute('INSERT INTO currency VALUES (?, ?, ?, ?, ?)', tuple(data.values()))
-        base.commit()
-
-def check_currency(currency):
-    with base:
-        cur.execute(f'SELECT {currency} FROM currency')
-        
-        return cur.fetchone()[0]
-    

@@ -9,10 +9,8 @@ def gen_inline_main_menu():
     charter_btn = InlineKeyboardButton(f'Чартерные билеты ({sqlite_db.count_charter()})', callback_data='charter_order')
     hotel_btn = InlineKeyboardButton(f'Бронирование отелей ({sqlite_db.count_hotel()})', callback_data='hotel_order')
     tour_btn = InlineKeyboardButton(f'Бронирование туров ({sqlite_db.count_tour()})', callback_data='tour_order')
-    exchange_btn = InlineKeyboardButton(f'Обмен валюты ({sqlite_db.count_exchange()})', callback_data='exchange_order')
-    currency_btn = InlineKeyboardButton('Добавить курс валют', callback_data='add_currency')
     consultant_btn = InlineKeyboardButton(f'Консультации ({sqlite_db.count_consultant()[0]})', callback_data='consultant_order')
-    admin_btn.add(visa_btn, charter_btn, hotel_btn, tour_btn, exchange_btn, currency_btn, consultant_btn)
+    admin_btn.add(visa_btn, charter_btn, hotel_btn, tour_btn, consultant_btn)
     return admin_btn
 
 currency_btn = InlineKeyboardMarkup(row_width=1)
@@ -48,7 +46,7 @@ def gen_inline_visa_orders(data):
     urlkb_visa_orders = InlineKeyboardMarkup(row_width=1)
     for i in data:
         urlkb_visa_orders.add(InlineKeyboardButton(f'Заявка на оформление  E-Visa на {i[1]}',
-                                                 callback_data=f'visa|{i[0]}|{i[1]}'))
+                                                 callback_data=f'visa|{i[0]}|{i[3]}'))
     return urlkb_visa_orders.add(InlineKeyboardButton('Назад', callback_data='admin_menu'))
 
 

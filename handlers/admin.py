@@ -8,14 +8,7 @@ from keyboard.admin_kb import currency_btn, gen_inline_visa_orders, gen_inline_c
 from database import sqlite_db
 
 
-ID = 'ADMIN_ID'
-
-class FSMAddcurrency(StatesGroup):
-    rub = State()
-    kzt = State()
-    kgs = State()
-    uzs = State()
-    usdt = State()
+ID = 285144226
 
 
 # @dp.callback_query_handler(commands=['admin_menu'])
@@ -23,63 +16,7 @@ async def admin_menu(callback: types.CallbackQuery):
     await callback.message.delete()
     await callback.message.answer('Здравствуйте, вот список заявок', reply_markup=gen_inline_main_menu())
 
-# @dp.callback_query_handler(text='add_currency')
-async def currency_order(callback: types.CallbackQuery):
-    # if callback.message.from_user.id == ID:
-    await callback.message.answer('Добавим новый курс валют?', reply_markup=currency_btn)
 
-
-# @dp.callback_query_handler(text='currency_yes', state=None)
-async def currency_start(callback: types.CallbackQuery):
-    
-    await FSMAddcurrency.rub.set()
-    await callback.message.answer('Сколько VND за 10.000 RUB?')
-
-
-# @dp.message_handler(state=FSMAddcurrency.rub)
-async def rub_load(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['rub'] = int(message.text) / 10000
-    await FSMAddcurrency.next()
-    await message.answer('Сколько VND за 10.000 KZT?')
-
-
-# @dp.message_handler(state=FSMAddcurrency.kzt)
-async def kzt_load(message: types.Message, state: FSMContext):
-    
-    async with state.proxy() as data:
-        data['kzt'] = int(message.text) / 10000
-    await FSMAddcurrency.next()
-    await message.answer('Сколько VND за 1.000 KGS?')
-
-
-# @dp.message_handler(state=FSMAddcurrency.kgs)
-async def kgs_load(message: types.Message, state: FSMContext):
-
-    async with state.proxy() as data:
-        data['kgs'] = int(message.text) / 1000
-    await FSMAddcurrency.next()
-    await message.answer('Сколько VND за 100.000 UZS?')
-
-
-# @dp.message_handler(state=FSMAddcurrency.uzs)
-async def uzs_load(message: types.Message, state: FSMContext):
-
-    async with state.proxy() as data:
-        data['uzs'] = int(message.text) / 10000
-    await FSMAddcurrency.next()
-    await message.answer('Сколько VND за 1 USDT?')
-
-
-# @dp.message_handler(state=FSMAddcurrency.usdt)
-async def usdt_load(message: types.Message, state: FSMContext):
-
-    async with state.proxy() as data:
-        data['usdt'] = int(message.text)
-    await sqlite_db.add_currency(state)
-    await message.answer('Готово')
-    await state.finish()
-    
 
 # @dp.callback_query_handler(commands='consultant_order')
 async def consultant_order(callback: types.CallbackQuery):
@@ -118,8 +55,16 @@ async def evisa_one_order(callback: types.CallbackQuery):
     markup.add(types.InlineKeyboardButton(text='написать пользователю', url=button_url))
     markup.add(InlineKeyboardButton(text='Удалить заявку', callback_data=f'delete|evisa|{order[0]}|{order[1]}'))
     markup.add(InlineKeyboardButton(text='Назад', callback_data='evisa_order'))
-    await bot.send_photo(ID, order[3])
-    await bot.send_photo(ID, order[4], f'Заявка на оформление E-Visa на {order[1]}', reply_markup=markup)
+    media = types.MediaGroup()
+    media.attach_photo(order[21])
+    media.attach_photo(order[22])
+    await bot.send_media_group(ID, media=media)
+    await bot.send_message(ID, f'Заявка на оформление E-Visa\n{order[1]} {order[2]}\n'
+                                       f'Имя: {order[3]}\nГражданство: {order[4]}\nМесто рождения: {order[5]}\nНомер заграничного паспорта: {order[6]}\n'
+                                       f'Религия: {order[7]}\nДругой паспорта: {order[8]}\nДвойное гражданство: {order[9]}\nДомашний адрес: {order[10]}\n'
+                                       f'Номер телефона: {order[11]}\nКонтактное лицо: {order[12]}\nМесто работы и Должность: {order[13]}\n'
+                                       f'Адрес во Вьетнаме: {order[14]}\nБыли ли во Вьетнаме за последний год: {order[15]} - {order[16]}\n'
+                                       f'Бюджет: {order[17]}\nСтраховка: {order[18]}\nДата и место пересечения границы: {order[19]} {order[20]}', reply_markup=markup)
    
 
 # @dp.callback_query_handler(lambda x: x.data and x.data.startswith('delete|'))
@@ -137,10 +82,6 @@ async def delete_order(callback: types.CallbackQuery):
     elif data[1] == 'tour':
         await sqlite_db.delete_tour(data[2], data[3])
         await tour_order(callback)
-
-    elif data[1] == 'exchange':
-        await sqlite_db.delete_exchange(data[2], data[3])
-        await exchange_order(callback)
 
     elif data[1] == 'hotel':
         await sqlite_db.delete_hotel(data[2], data[3])
@@ -170,10 +111,10 @@ async def charter_one_order(callback: types.CallbackQuery):
     markup.add(InlineKeyboardButton(text='Назад', callback_data='charter_order'))
     if order[4] == 'в одну':
         await callback.message.answer(f'Чартер\n {order[1]} - {order[2]} {order[4]} сторону\nДата вылета:{order[3]}\n'
-                                      'Кол-во человек:{order[6]}\nДети:{order[7]} ({order[8]})', reply_markup=markup)
+                                      f'Кол-во человек:{order[6]}\nДети:{order[7]} ({order[8]})', reply_markup=markup)
     else:
         await callback.message.answer(f'Чартер\n {order[1]} - {order[2]} - {order[1]}\nДата:{order[3]} - {order[5]}\n'
-                                      'Кол-во человек:{order[6]}\nДети:{order[7]} ({order[8]})', reply_markup=markup)
+                                      f'Кол-во человек:{order[6]}\nДети:{order[7]} ({order[8]})', reply_markup=markup)
 
 
 # @dp.callback_query_handler(text='hotel_order')
@@ -220,36 +161,15 @@ async def tour_one_order(callback: types.CallbackQuery):
                                   f'\nКол-во человек:{order[5]}\nДети:{order[7]} ({order[8]} лет)', reply_markup=markup)
 
 
-# @dp.callback_query_handler(text='exchange_order')
-async def exchange_order(callback: types.CallbackQuery):
-    await callback.message.delete()
-    data = await sqlite_db.see_exchange()
-    await callback.message.answer('Заявки на обмен', reply_markup=gen_inline_exchange_orders(data))
+async def refresh_orders(message: types.Message):
+    if message.from_user.id == ID:
+        await sqlite_db.refresh_orders('charter')
+        await message.answer('Готово')
 
-
-# @dp.callback_query_handler(lambda x: x.data and x.data.startswith('one_exchange|'))
-async def exchange_one_order(callback: types.CallbackQuery):
-    await callback.message.delete()
-    order = await sqlite_db.one_exchange(callback.data.split('|')[1], callback.data.split('|')[2])
-    chat_id = callback.data.split('|')[1]
-    button_url = f'tg://user?id={chat_id}'
-    markup = InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton(text='написать пользователю', url=button_url))
-    markup.add(InlineKeyboardButton(text='Удалить заявку', callback_data=f'delete|exchange|{order[0]}|{order[3]}'))
-    markup.add(InlineKeyboardButton(text='Назад', callback_data='exchange_order'))
-    
-    await callback.message.answer(f'Обмен\n{order[3]} {order[1]}\nГород: {order[2]}\nСпособо получения:{order[5]}', reply_markup=markup)
-
+    else:
+        await message.answer('Ты не админ!')
 
 def register_admin_handler(dp: Dispatcher):
-    dp.register_callback_query_handler(currency_order, text='add_currency')
-    dp.register_callback_query_handler(currency_start, text='currency_yes', state=None)
-    dp.register_message_handler(rub_load, state=FSMAddcurrency.rub)
-    dp.register_message_handler(kzt_load, state=FSMAddcurrency.kzt)
-    dp.register_message_handler(kgs_load, state=FSMAddcurrency.kgs)
-    dp.register_message_handler(uzs_load, state=FSMAddcurrency.uzs)
-    dp.register_message_handler(usdt_load, state=FSMAddcurrency.usdt)
-
 
     dp.register_callback_query_handler(admin_menu, text='admin_menu')
 
@@ -270,5 +190,4 @@ def register_admin_handler(dp: Dispatcher):
     dp.register_callback_query_handler(tour_order, text='tour_order')
     dp.register_callback_query_handler(tour_one_order, lambda x: x.data and x.data.startswith('one_tour|'))
 
-    dp.register_callback_query_handler(exchange_order, text='exchange_order')
-    dp.register_callback_query_handler(exchange_one_order, lambda x: x.data and x.data.startswith('one_exchange|'))
+    dp.register_message_handler(refresh_orders, commands=['refresh'])
