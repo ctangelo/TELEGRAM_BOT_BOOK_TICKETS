@@ -12,8 +12,8 @@ inline_charter_btn = InlineKeyboardButton('✈️ Чартерные Рейсы'
 schedule_btn = InlineKeyboardButton('🗓 Чартерное Расписание', url='https://taplink.cc/chartervietnam')
 inline_tour_btn = InlineKeyboardButton('🌴 Пакетные Туры', callback_data='tour')
 inline_hotel_btn = InlineKeyboardButton('🏨 Бронирование Отелей', callback_data='hotel')
-inline_visa_btn = InlineKeyboardButton('🛂 🇻🇳 Оформление Евизы', url='https://t.me/TourObmen_bot')
-inline_exchange_btn = InlineKeyboardButton('💰 Обмен Валюты', callback_data='exchange')
+inline_visa_btn = InlineKeyboardButton('🛂 🇻🇳 Оформление Евизы', callback_data='evisa')
+inline_exchange_btn = InlineKeyboardButton('💰 Обмен Валюты', url='https://t.me/TourObmen_bot')
 inline_consultant_btn = InlineKeyboardButton('👨‍💻 Консультация Менеджера', callback_data='consultant')
 inline_menu.add(inline_charter_btn).add(schedule_btn).add(inline_tour_btn).add(inline_hotel_btn).add(inline_visa_btn).add(inline_exchange_btn).add(inline_consultant_btn)
 
