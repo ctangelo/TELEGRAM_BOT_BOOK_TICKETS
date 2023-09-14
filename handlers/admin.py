@@ -8,7 +8,7 @@ from keyboard.admin_kb import currency_btn, gen_inline_visa_orders, gen_inline_c
 from database import sqlite_db
 
 
-ID = 245955512
+ID = 'ADMIN'
 
 
 # @dp.callback_query_handler(commands=['admin_menu'])
