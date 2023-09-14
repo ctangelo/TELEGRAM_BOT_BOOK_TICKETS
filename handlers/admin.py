@@ -8,7 +8,7 @@ from keyboard.admin_kb import currency_btn, gen_inline_visa_orders, gen_inline_c
 from database import sqlite_db
 
 
-ID = 285144226
+ID = 245955512
 
 
 # @dp.callback_query_handler(commands=['admin_menu'])
@@ -56,15 +56,15 @@ async def evisa_one_order(callback: types.CallbackQuery):
     markup.add(InlineKeyboardButton(text='Удалить заявку', callback_data=f'delete|evisa|{order[0]}|{order[1]}'))
     markup.add(InlineKeyboardButton(text='Назад', callback_data='evisa_order'))
     media = types.MediaGroup()
+    media.attach_photo(order[20])
     media.attach_photo(order[21])
-    media.attach_photo(order[22])
     await bot.send_media_group(ID, media=media)
     await bot.send_message(ID, f'Заявка на оформление E-Visa\n{order[1]} {order[2]}\n'
                                        f'Имя: {order[3]}\nГражданство: {order[4]}\nМесто рождения: {order[5]}\nНомер заграничного паспорта: {order[6]}\n'
                                        f'Религия: {order[7]}\nДругой паспорта: {order[8]}\nДвойное гражданство: {order[9]}\nДомашний адрес: {order[10]}\n'
-                                       f'Номер телефона: {order[11]}\nКонтактное лицо: {order[12]}\nМесто работы и Должность: {order[13]}\n'
-                                       f'Адрес во Вьетнаме: {order[14]}\nБыли ли во Вьетнаме за последний год: {order[15]} - {order[16]}\n'
-                                       f'Бюджет: {order[17]}\nСтраховка: {order[18]}\nДата и место пересечения границы: {order[19]} {order[20]}', reply_markup=markup)
+                                       f'Номер телефона: {order[11]}\nМесто работы и Должность: {order[12]}\n'
+                                       f'Адрес во Вьетнаме: {order[13]}\nБыли ли во Вьетнаме за последний год: {order[14]} - {order[15]}\n'
+                                       f'Бюджет: {order[16]}\nСтраховка: {order[17]}\nДата и место пересечения границы: {order[18]} {order[19]}', reply_markup=markup)
    
 
 # @dp.callback_query_handler(lambda x: x.data and x.data.startswith('delete|'))

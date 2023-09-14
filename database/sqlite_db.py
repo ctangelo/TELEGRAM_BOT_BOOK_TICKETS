@@ -9,8 +9,8 @@ def sql_start():
     cur = base.cursor()
     if base:
         print("Database connected successfully")
-    
-    base.execute('CREATE TABLE IF NOT EXISTS visa(user_id INTEGER, visa TEXT, visa_2 TEXT, name TEXT, occupation TEXT, citizenship TEXT, passport_number INTEGER, religion TEXT, old_passport TEXT, double_citizenship TEXT, home_adress TEXT, phone INTEGER, contact_person TEXT, job TEXT, adress_vietnam TEXT, vietnam_stay_last_year_date1 TEXT, vietnam_stay_last_year_date2 TEXT, budget TEXT, insurance TEXT, date TEXT, location TEXT, id TEXT, photo TEXT)')
+    # base.execute('DROP TABLE visa')
+    base.execute('CREATE TABLE IF NOT EXISTS visa(user_id INTEGER, visa TEXT, visa_2 TEXT, name TEXT, occupation TEXT, citizenship TEXT, passport_number INTEGER, religion TEXT, old_passport TEXT, double_citizenship TEXT, home_adress TEXT, phone INTEGER, job TEXT, adress_vietnam TEXT, vietnam_stay_last_year_date1 TEXT, vietnam_stay_last_year_date2 TEXT, budget TEXT, insurance TEXT, date TEXT, location TEXT, id TEXT, photo TEXT)')
     base.execute('CREATE TABLE IF NOT EXISTS tour(user_id INTEGER, departure TEXT, resort TEXT, date_departure TEXT, amount_of_nights INTEGER, number_of_persons INTEGER, children TEXT, number_of_childrens INTEGER, age_children TEXT, hotel TEXT, hotel_name TEXT, stars TEXT)')
     base.execute('CREATE TABLE IF NOT EXISTS charter(user_id INTEGER, departure TEXT, arrival TEXT, date_departure TEXT, one_two_way TEXT, date_back TEXT, number_of_persons INTEGER, children TEXT, number_of_childrens INTEGER)')
     base.execute('CREATE TABLE IF NOT EXISTS hotel(user_id INTEGER, resort TEXT, hotel TEXT, hotel_name TEXT, stars TEXT, arrival_day TEXT, amount_of_nights INTEGER, amount_of_person INTEGER, children TEXT, number_of_childrens INTEGER, age_children TEXT)')
@@ -61,7 +61,7 @@ def count_consultant():
 
 async def add_visa(state):
     async with state.proxy() as data:
-        cur.execute('INSERT INTO visa VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', tuple(data.values()))
+        cur.execute('INSERT INTO visa VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', tuple(data.values()))
         base.commit()
     await bot.send_message(ID, 'У вас новая заявка на оформление евизы', reply_markup=order_visa_btn)
     

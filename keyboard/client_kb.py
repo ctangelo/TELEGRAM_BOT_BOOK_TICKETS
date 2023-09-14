@@ -5,17 +5,24 @@ from dispatcher import bot
 main_kb = ReplyKeyboardMarkup(resize_keyboard=True)
 main_kb.row(main_kb)
 
+# , callback_data='evisa'
 
 inline_menu = InlineKeyboardMarkup(row_width=1)
-inline_charter_btn = InlineKeyboardButton('✈️ Чартерные рейсы', callback_data='charter')
-inline_tour_btn = InlineKeyboardButton('🌴 Пакетные туры', callback_data='tour')
-inline_hotel_btn = InlineKeyboardButton('🏨 Бронирование отелей', callback_data='hotel')
-inline_visa_btn = InlineKeyboardButton('🛂 Оформление Евизы во Вьетнам ', callback_data='evisa')
-inline_exchange_btn = InlineKeyboardButton('💰 Обмен валюты', callback_data='exchange')
-inline_consultant_btn = InlineKeyboardButton('👨‍💻 Консультация менеджера', callback_data='consultant')
-inline_menu.add(inline_charter_btn).add(inline_tour_btn).add(inline_hotel_btn).add(inline_visa_btn).add(inline_exchange_btn).add(inline_consultant_btn)
+inline_charter_btn = InlineKeyboardButton('✈️ Чартерные Рейсы', callback_data='charter')
+schedule_btn = InlineKeyboardButton('🗓 Чартерное Расписание', url='https://taplink.cc/chartervietnam')
+inline_tour_btn = InlineKeyboardButton('🌴 Пакетные Туры', callback_data='tour')
+inline_hotel_btn = InlineKeyboardButton('🏨 Бронирование Отелей', callback_data='hotel')
+inline_visa_btn = InlineKeyboardButton('🛂 🇻🇳 Оформление Евизы', url='https://t.me/TourObmen_bot')
+inline_exchange_btn = InlineKeyboardButton('💰 Обмен Валюты', callback_data='exchange')
+inline_consultant_btn = InlineKeyboardButton('👨‍💻 Консультация Менеджера', callback_data='consultant')
+inline_menu.add(inline_charter_btn).add(schedule_btn).add(inline_tour_btn).add(inline_hotel_btn).add(inline_visa_btn).add(inline_exchange_btn).add(inline_consultant_btn)
 
 # __________________EVISA__________________________
+continue_btn = InlineKeyboardMarkup(row_width=1)
+cont = InlineKeyboardButton('Продолжить заполнение', callback_data='continue')
+back_to_menu = InlineKeyboardButton('Отмена', callback_data='cancel')
+continue_btn.add(cont, back_to_menu)
+
 
 visa_btn = InlineKeyboardMarkup(row_width=1)
 yes_visa_btn = InlineKeyboardButton('Да', callback_data='visa_yes')
@@ -34,24 +41,29 @@ visa_cities.add(bo_y_btn, Tan_Son_btn, PhuQuoc_btn, Hanoi_btn, Nhatrang_btn, Moc
 
 
 visa_90_btn = InlineKeyboardMarkup(row_width=1)
-visa_90_single = InlineKeyboardButton('90 дней Single', callback_data='single')
-visa_90_multi = InlineKeyboardButton('90 дней Multiple', callback_data='multiply')
+visa_90_single = InlineKeyboardButton('🌐 90 дней Single', callback_data='single')
+visa_90_multi = InlineKeyboardButton('🌐 90 дней Multiple', callback_data='multiply')
 visa_90_btn.add(visa_90_single, visa_90_multi)
 
 
 speed_visa_btn = InlineKeyboardMarkup(row_width=1)
-visa_5 = InlineKeyboardButton('Стандартное оформление - 5 раб дней', callback_data='Обычная 5 дней')
-visa_2 = InlineKeyboardButton('Срочное оформление - 2 рабочий дня', callback_data='Срочная 2 дня')
-visa_1 = InlineKeyboardButton('Срочное оформление - 1 рабочий день', callback_data='Срочная 1 день')
+visa_5 = InlineKeyboardButton('✅ Стандартное оформление - 5 раб дней', callback_data='Обычная 5 дней')
+visa_2 = InlineKeyboardButton('⚡ Срочное оформление - 2 рабочий дня', callback_data='Срочная 2 дня')
+visa_1 = InlineKeyboardButton('⚡ Срочное оформление - 1 рабочий день', callback_data='Срочная 1 день')
 speed_visa_btn.add(visa_5, visa_2, visa_1)
+
+
+approve_btn = InlineKeyboardMarkup(row_width=1)
+approve = InlineKeyboardButton('Ок, понял', callback_data='ok')
+example = InlineKeyboardButton('Пример заполнения', callback_data='example')
+approve_btn.add(approve, example)
 
 # _______________Чартерные билеты_________________
 
 charter_btn = InlineKeyboardMarkup(row_width=1)
 yes_charter_btn= InlineKeyboardButton('Да', callback_data='charter_yes')
 no_charter_btn = InlineKeyboardButton('Нет, вернуться в меню', callback_data='main_menu')
-schedule_btn = InlineKeyboardButton('Расписание', url='https://taplink.cc/chartervietnam')
-charter_btn.add(yes_charter_btn).add(no_charter_btn).add(schedule_btn)
+charter_btn.add(yes_charter_btn).add(no_charter_btn)
 
 charter_cities = InlineKeyboardMarkup(row_width=1)
 nha_trang = InlineKeyboardButton('Нячанг', callback_data='Нячанг')

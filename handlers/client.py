@@ -4,7 +4,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardMarkup
 from dispatcher import bot, dp
 from keyboard.client_kb import inline_menu, visa_btn, visa_cities, charter_btn, charter_cities, yes_no_btn, number_of_persons_btn, number_of_childrens_btn
-from keyboard.client_kb import tour_btn, tour_cities, tour_resort, tour_night, hotel_stars_btn, hotel_btn, back_btn, visa_90_btn, speed_visa_btn
+from keyboard.client_kb import tour_btn, tour_cities, tour_resort, tour_night, hotel_stars_btn, hotel_btn, back_btn, visa_90_btn, speed_visa_btn, approve_btn, continue_btn
 from keyboard.admin_kb import gen_inline_main_menu
 from handlers.admin import ID
 from aiogram_calendar import simple_cal_callback, SimpleCalendar
@@ -55,14 +55,16 @@ async def consultant_2(callback: types.CallbackQuery):
 # @dp.callback_query_handler(commands=['evisa'])
 async def evisa_menu(callback: types.CallbackQuery):
     await callback.message.delete()
-    await callback.message.answer('Стандартное оформление визы 5 рабочих дней\n90 дней Single 40 USD\n90 дней Multiple 70 USD\nСрочное оформление \n1 рабочий день 120 USD\n2 рабочих дня 100 USD \n\nПриступим?',
+    await callback.message.answer('✅ Стандартное оформление: 5 рабочих дней\n🌐 90 дней Single 40 USD\n🌐 90 дней Multiple 70 USD\n\n⚡ Срочное оформление: 1 рабочий день\n🌐 90 дней Single 90 USD\n🌐 90 дней Multiple 130 USD\n\n⚡️ Срочное оформление: 2 рабочих дня\n🌐 90 дней Single 110 USD\n🌐 90 дней Multiple 150 USD\n\nПриступим?',
                                 reply_markup=visa_btn)
 
 
 class FSMVisa(StatesGroup):
     visa = State()
     visa_2 = State()
+    approve = State()
     name = State()
+    name_2 = State()
     occupation = State()
     citizenship = State()
     passport_number = State()
@@ -72,7 +74,6 @@ class FSMVisa(StatesGroup):
     double_citizenship = State()
     home_adress = State()
     phone = State()
-    contact_person = State()
     job = State()
     adress_vietnam = State()
     vietnam_stay_last_year = State()
@@ -102,12 +103,37 @@ async def visa_load(callback: types.CallbackQuery, state=FSMContext):
     await FSMVisa.next()
     await callback.message.answer('Срочность оформления:', reply_markup=speed_visa_btn)
 
+
 # @dp.callback_query_handler(text=['visa_yes'], state=None)
 async def visa_2_load(callback: types.CallbackQuery, state=FSMContext):
     async with state.proxy() as data:
         data['visa_2'] = callback.data
     await FSMVisa.next()
-    await callback.message.answer('Ваше Имя Латиницей:')
+    await callback.message.answer('👉 Теперь просьба заполнить опросник: 1️⃣8️⃣ пунктов:\n⚠️Заполнять латинскими буквами!', reply_markup=approve_btn)
+
+
+
+# @dp.callback_query_handler(text=['visa_yes'], state=None)
+async def approve(callback: types.CallbackQuery, state=FSMContext):
+    if callback.data == 'ok':
+        await FSMVisa.name.set()
+        await name_2(callback)
+        
+
+    else:
+        await FSMVisa.next()
+        await callback.message.answer('1️⃣ Ivanov Ivan\n2️⃣ Russia\n3️⃣ Russia\n4️⃣ 77 123456\n5️⃣ Christian\n6️⃣ No \n7️⃣ No \n8️⃣ Russia, Lenina street 11-431\n9️⃣ +721 11 22 33\n1️⃣0️⃣ No work\n1️⃣1️⃣ Nhatrang, Tran phu 100 -221 (Lily Apartment)\n1️⃣2️⃣ Yes , from 08.06.2023 to 11.06.2023', reply_markup=continue_btn)
+        
+
+
+# @dp.callback_query_handler(text=['visa_yes'], state=None)
+async def name_2(callback: types.CallbackQuery, state=FSMContext):
+     if callback.data == 'main_menu':
+         await state.finish()
+         await menu_2(callback)
+     else:
+        await callback.message.answer('Ваше Имя Латиницей:')
+        await FSMVisa.next()
 
 # @dp.message_handler(state=FSMVisa.name)
 async def name_load(message: types.Message, state: FSMContext):
@@ -203,16 +229,9 @@ async def phone_load(message: types.Message, state: FSMContext):
         data['phone'] = message.text
     
     await FSMVisa.next()
-    await message.answer('Контакт для экстренной связи (Контактное лицо)?\nФамилия Имя, Контактный номер телефона, Адрес')
-
-
-# @dp.message_handler( state=FSMVisa.contact_person)
-async def contact_person_load(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['contact_person'] = message.text
-  
-    await FSMVisa.next()
     await message.answer('Место работы и Должность?')
+
+    
 
 
 # @dp.message_handler( state=FSMVisa.job)
@@ -329,7 +348,7 @@ async def visa_load_passport(message: types.Message, state: FSMContext):
 async def visa_load_photo(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
             data['photo'] = message.photo[0].file_id
- 
+            
     await sqlite_db.add_visa(state)
     await state.finish()
     await message.answer('Спасибо, ваша заявка приянта, оператор свяжется с вами в ближайшее время')
@@ -808,7 +827,9 @@ def register_client_handler(dp: Dispatcher):
     dp.register_callback_query_handler(visa_start, text=['visa_yes'], state=None)
     dp.register_callback_query_handler(visa_load, state=FSMVisa.visa)
     dp.register_callback_query_handler(visa_2_load, state=FSMVisa.visa_2)
-    dp.register_message_handler(name_load, state=FSMVisa.name)
+    dp.register_callback_query_handler(approve, state=FSMVisa.approve)
+    dp.register_callback_query_handler(name_2, state=FSMVisa.name)
+    dp.register_message_handler(name_load, state=FSMVisa.name_2)
     dp.register_message_handler(ocupation_load, state=FSMVisa.occupation)
     dp.register_message_handler(citizenship_load, state=FSMVisa.citizenship)
     dp.register_message_handler(passport_number_load, state=FSMVisa.passport_number)
@@ -818,7 +839,6 @@ def register_client_handler(dp: Dispatcher):
     dp.register_callback_query_handler(double_citizenship_load, state=FSMVisa.double_citizenship)
     dp.register_message_handler(home_adress_load, state=FSMVisa.home_adress)
     dp.register_message_handler(phone_load, state=FSMVisa.phone)
-    dp.register_message_handler(contact_person_load, state=FSMVisa.contact_person)
     dp.register_message_handler(job_load, state=FSMVisa.job)
     dp.register_message_handler(adress_vietnam_load, state=FSMVisa.adress_vietnam)
     dp.register_callback_query_handler(vietnam_stay_last_year_load, state=FSMVisa.vietnam_stay_last_year)
