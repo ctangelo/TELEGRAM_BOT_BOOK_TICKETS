@@ -46,7 +46,7 @@ def gen_inline_visa_orders(data):
     urlkb_visa_orders = InlineKeyboardMarkup(row_width=1)
     for i in data:
         urlkb_visa_orders.add(InlineKeyboardButton(f'Заявка на оформление  E-Visa на {i[1]}',
-                                                 callback_data=f'visa|{i[0]}|{i[3]}'))
+                                                 callback_data=f'visa|{i[0]}|{i[8]}'))
     return urlkb_visa_orders.add(InlineKeyboardButton('Назад', callback_data='admin_menu'))
 
 

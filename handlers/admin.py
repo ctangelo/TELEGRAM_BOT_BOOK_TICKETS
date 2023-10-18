@@ -1,14 +1,13 @@
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from aiogram.dispatcher.filters.state import State, StatesGroup
 from dispatcher import bot, dp
 from keyboard.admin_kb import currency_btn, gen_inline_visa_orders, gen_inline_charter_orders, gen_inline_hotel_orders, gen_inline_tour_orders, \
         gen_inline_exchange_orders, gen_inline_main_menu, gen_inline_consultant_orders
 from database import sqlite_db
 
 
-ID = 'ADMIN'
+ID = 5931861928
 
 
 # @dp.callback_query_handler(commands=['admin_menu'])
@@ -53,18 +52,17 @@ async def evisa_one_order(callback: types.CallbackQuery):
     button_url = f'tg://user?id={chat_id}'
     markup = InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton(text='написать пользователю', url=button_url))
-    markup.add(InlineKeyboardButton(text='Удалить заявку', callback_data=f'delete|evisa|{order[0]}|{order[1]}'))
+    markup.add(InlineKeyboardButton(text='Удалить заявку', callback_data=f'delete|evisa|{order[0]}|{order[8]}'))
     markup.add(InlineKeyboardButton(text='Назад', callback_data='evisa_order'))
     media = types.MediaGroup()
-    media.attach_photo(order[20])
-    media.attach_photo(order[21])
+    media.attach_photo(order[10])
+    media.attach_photo(order[11])
     await bot.send_media_group(ID, media=media)
-    await bot.send_message(ID, f'Заявка на оформление E-Visa\n{order[1]} {order[2]}\n'
-                                       f'Имя: {order[3]}\nГражданство: {order[4]}\nМесто рождения: {order[5]}\nНомер заграничного паспорта: {order[6]}\n'
-                                       f'Религия: {order[7]}\nДругой паспорта: {order[8]}\nДвойное гражданство: {order[9]}\nДомашний адрес: {order[10]}\n'
-                                       f'Номер телефона: {order[11]}\nМесто работы и Должность: {order[12]}\n'
-                                       f'Адрес во Вьетнаме: {order[13]}\nБыли ли во Вьетнаме за последний год: {order[14]} - {order[15]}\n'
-                                       f'Бюджет: {order[16]}\nСтраховка: {order[17]}\nДата и место пересечения границы: {order[18]} {order[19]}', reply_markup=markup)
+    await bot.send_message(ID, f'Заявка на оформление E-Visa\n{order[1]}\n'
+                                f'Другие паспорта для въезда во Вьетнам {order[2]}\nДвойное гражданство: {order[3]}\nДомашний адрес: {order[4]}\n'
+                                f'Номер телефона: {order[5]}\nАдрес во Вьетнаме: {order[6]}\n'
+                                f'Были ли во Вьетнаме за последний год: {order[7]}\n'
+                                f'Дата и место пересечения границы: {order[8]} {order[9]}', reply_markup=markup)
    
 
 # @dp.callback_query_handler(lambda x: x.data and x.data.startswith('delete|'))

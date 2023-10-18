@@ -1,11 +1,11 @@
-from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton
 from dispatcher import bot
+
 
 
 main_kb = ReplyKeyboardMarkup(resize_keyboard=True)
 main_kb.row(main_kb)
 
-# , callback_data='evisa'
 
 inline_menu = InlineKeyboardMarkup(row_width=1)
 inline_charter_btn = InlineKeyboardButton('✈️ Чартерные Рейсы', callback_data='charter')
@@ -18,46 +18,48 @@ inline_consultant_btn = InlineKeyboardButton('👨‍💻 Консультаци
 inline_menu.add(inline_charter_btn).add(schedule_btn).add(inline_tour_btn).add(inline_hotel_btn).add(inline_visa_btn).add(inline_exchange_btn).add(inline_consultant_btn)
 
 # __________________EVISA__________________________
-continue_btn = InlineKeyboardMarkup(row_width=1)
-cont = InlineKeyboardButton('Продолжить заполнение', callback_data='continue')
-back_to_menu = InlineKeyboardButton('Отмена', callback_data='cancel')
+continue_btn = ReplyKeyboardMarkup(resize_keyboard=True)
+cont = KeyboardButton('Продолжить заполнение')
+back_to_menu = KeyboardButton('Отмена')
 continue_btn.add(cont, back_to_menu)
 
+
+yes_no_evisa = ReplyKeyboardMarkup(resize_keyboard=True)
+yes_btn = KeyboardButton('Да')
+no_btn = KeyboardButton('Нет')
+return_btn = KeyboardButton('Предыдущий вопрос')
+yes_no_evisa.row(yes_btn, no_btn).add(return_btn)
 
 visa_btn = InlineKeyboardMarkup(row_width=1)
 yes_visa_btn = InlineKeyboardButton('Да', callback_data='visa_yes')
 menu_btn = InlineKeyboardButton('Нет, вернуться в меню', callback_data='main_menu')
 visa_btn.add(yes_visa_btn).add(menu_btn)
 
-visa_cities = InlineKeyboardMarkup(row_width=1)
-bo_y_btn = InlineKeyboardButton('Bo-Y', callback_data='BO-Y')
-Tan_Son_btn = InlineKeyboardButton('Tan Son Nhat Airport (Ho Chi Minh city)', callback_data='Tan Son Nhat Airport (Ho Chi Minh city)')
-PhuQuoc_btn = InlineKeyboardButton('Phu Quoc International airport', callback_data='Phu Quoc International airport')
-Hanoi_btn = InlineKeyboardButton('Noi Bai Airport (Hanoi)', callback_data='Noi Bai Airport (Hanoi)')
-Nhatrang_btn = InlineKeyboardButton('CamRanh Airport (Nhatrang)', callback_data='CamRanh Airport (Nhatrang)')
-Moc_Bai_btn = InlineKeyboardButton('Moc Bai Landport ', callback_data='Moc Bai Landport ')
-Da_Nang_btn = InlineKeyboardButton('Da Nang Airport', callback_data='Da Nang Airport')
-visa_cities.add(bo_y_btn, Tan_Son_btn, PhuQuoc_btn, Hanoi_btn, Nhatrang_btn, Moc_Bai_btn, Da_Nang_btn)
+visa_cities = ReplyKeyboardMarkup(row_width=1)
+bo_y_btn = KeyboardButton('Bo-Y')
+Tan_Son_btn = KeyboardButton('Tan Son Nhat Airport (Ho Chi Minh city)')
+PhuQuoc_btn = KeyboardButton('Phu Quoc International airport')
+Hanoi_btn = KeyboardButton('Noi Bai Airport (Hanoi)')
+Nhatrang_btn = KeyboardButton('CamRanh Airport (Nhatrang)')
+Moc_Bai_btn = KeyboardButton('Moc Bai Landport')
+Da_Nang_btn = KeyboardButton('Da Nang Airport')
+return_btn = KeyboardButton('Предыдущий вопрос')
+visa_cities.add(bo_y_btn, Tan_Son_btn, PhuQuoc_btn, Hanoi_btn, Nhatrang_btn, Moc_Bai_btn, Da_Nang_btn, return_btn)
 
 
-visa_90_btn = InlineKeyboardMarkup(row_width=1)
-visa_90_single = InlineKeyboardButton('🌐 90 дней Single', callback_data='single')
-visa_90_multi = InlineKeyboardButton('🌐 90 дней Multiple', callback_data='multiply')
+visa_90_btn = ReplyKeyboardMarkup(resize_keyboard=True)
+visa_90_single = KeyboardButton('🌐 90 дней Single')
+visa_90_multi = KeyboardButton('🌐 90 дней Multiple')
 visa_90_btn.add(visa_90_single, visa_90_multi)
 
 
-speed_visa_btn = InlineKeyboardMarkup(row_width=1)
-visa_5 = InlineKeyboardButton('✅ Стандартное оформление - 5 раб дней', callback_data='Обычная 5 дней')
-visa_2 = InlineKeyboardButton('⚡ Срочное оформление - 2 рабочий дня', callback_data='Срочная 2 дня')
-visa_1 = InlineKeyboardButton('⚡ Срочное оформление - 1 рабочий день', callback_data='Срочная 1 день')
-speed_visa_btn.add(visa_5, visa_2, visa_1)
+approve_btn = ReplyKeyboardMarkup(resize_keyboard=True)
+approve = KeyboardButton('Ок, понял')
+approve_btn.add(approve)
 
-
-approve_btn = InlineKeyboardMarkup(row_width=1)
-approve = InlineKeyboardButton('Ок, понял', callback_data='ok')
-example = InlineKeyboardButton('Пример заполнения', callback_data='example')
-approve_btn.add(approve, example)
-
+previous = ReplyKeyboardMarkup(resize_keyboard=True)
+prev_btn = KeyboardButton('Предыдущий вопрос')
+previous.add(prev_btn)
 # _______________Чартерные билеты_________________
 
 charter_btn = InlineKeyboardMarkup(row_width=1)

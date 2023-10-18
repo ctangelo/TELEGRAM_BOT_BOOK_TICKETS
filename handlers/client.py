@@ -1,15 +1,15 @@
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardMarkup
 from dispatcher import bot, dp
 from keyboard.client_kb import inline_menu, visa_btn, visa_cities, charter_btn, charter_cities, yes_no_btn, number_of_persons_btn, number_of_childrens_btn
-from keyboard.client_kb import tour_btn, tour_cities, tour_resort, tour_night, hotel_stars_btn, hotel_btn, back_btn, visa_90_btn, speed_visa_btn, approve_btn, continue_btn
+from keyboard.client_kb import tour_btn, tour_cities, tour_resort, tour_night, hotel_stars_btn, hotel_btn, back_btn, visa_90_btn, approve_btn, yes_no_evisa, previous
 from keyboard.admin_kb import gen_inline_main_menu
 from handlers.admin import ID
 from aiogram_calendar import simple_cal_callback, SimpleCalendar
 from database import sqlite_db
-import math
+from aiogram.types import InputFile
+
 
 
 # @dp.message_handler(commands=['start'])
@@ -26,6 +26,7 @@ async def menu(message: types.Message, state: FSMContext):
     if message.from_user.id == ID:
         await message.answer('Здравствуйте, вот список заявок', reply_markup=gen_inline_main_menu())
     else:
+        await bot.send_photo(message.from_user.id, photo=InputFile("/root/TELEGRAM_BOT_BOOK_TICKETS/LOGONEW.png"), reply_markup=types.ReplyKeyboardRemove())
         await message.answer('Чем я могу Вам помочь сегодня?', reply_markup=inline_menu)
 
 
@@ -52,35 +53,24 @@ async def consultant_2(callback: types.CallbackQuery):
 
 # ____________EVISA_____________________________
 
-# @dp.callback_query_handler(commands=['evisa'])
+
+
+# @dp.callback_query_handler(text=['evisa'])
 async def evisa_menu(callback: types.CallbackQuery):
     await callback.message.delete()
-    await callback.message.answer('✅ Стандартное оформление: 5 рабочих дней\n🌐 90 дней Single 40 USD\n🌐 90 дней Multiple 70 USD\n\n⚡ Срочное оформление: 1 рабочий день\n🌐 90 дней Single 90 USD\n🌐 90 дней Multiple 130 USD\n\n⚡️ Срочное оформление: 2 рабочих дня\n🌐 90 дней Single 110 USD\n🌐 90 дней Multiple 150 USD\n\nПриступим?',
-                                reply_markup=visa_btn)
+    await callback.message.answer('🛂Оформление Evisa (Вьетнам)\n🌐90 дней Single 40 USD\n🌐90 дней Multiple 70 USD\n\nПриступим?',reply_markup=visa_btn)
 
 
 class FSMVisa(StatesGroup):
     visa = State()
-    visa_2 = State()
     approve = State()
-    name = State()
-    name_2 = State()
-    occupation = State()
-    citizenship = State()
-    passport_number = State()
-    religion = State()
-    old_passport_1 = State()
-    old_passport_2 = State()
+    another_passport = State()
     double_citizenship = State()
     home_adress = State()
     phone = State()
-    job = State()
     adress_vietnam = State()
     vietnam_stay_last_year = State()
-    vietnam_stay_last_year_date1 = State()
-    vietnam_stay_last_year_date2 = State()
-    budget = State()
-    insurance = State()
+    vietnam_stay_last_year_date = State()
     date = State()
     location = State()
     passport = State()
@@ -89,269 +79,319 @@ class FSMVisa(StatesGroup):
 
 
 # @dp.callback_query_handler(text=['visa_yes'], state=None)
-async def visa_start(callback: types.CallbackQuery):
+async def visa_start(callback: types.CallbackQuery, state=FSMContext):
     await callback.message.delete()
     await FSMVisa.visa.set()
-    await callback.message.answer('Выберите Визу:', reply_markup=visa_90_btn)
-
-
-# @dp.callback_query_handler(text=['visa_yes'], state=None)
-async def visa_load(callback: types.CallbackQuery, state=FSMContext):
+    msg = await callback.message.answer('Выберите Визу:\n🌐 90 дней Single\n🌐 90 дней Multiple', reply_markup=visa_90_btn)
     async with state.proxy() as data:
-        data['user_id'] = callback.message.chat.id
-        data['visa'] = callback.data
-    await FSMVisa.next()
-    await callback.message.answer('Срочность оформления:', reply_markup=speed_visa_btn)
+        data['msg_id'] = msg["message_id"]
 
 
-# @dp.callback_query_handler(text=['visa_yes'], state=None)
-async def visa_2_load(callback: types.CallbackQuery, state=FSMContext):
+# @dp.message_handler(text=['visa_yes'], state=FSMVisa.visa)
+async def visa_load(message: types.Message, state=FSMContext):
     async with state.proxy() as data:
-        data['visa_2'] = callback.data
-    await FSMVisa.next()
-    await callback.message.answer('👉 Теперь просьба заполнить опросник: 1️⃣8️⃣ пунктов:\n⚠️Заполнять латинскими буквами!', reply_markup=approve_btn)
-
-
-
-# @dp.callback_query_handler(text=['visa_yes'], state=None)
-async def approve(callback: types.CallbackQuery, state=FSMContext):
-    if callback.data == 'ok':
-        await FSMVisa.name.set()
-        await name_2(callback)
-        
-
-    else:
-        await FSMVisa.next()
-        await callback.message.answer('1️⃣ Ivanov Ivan\n2️⃣ Russia\n3️⃣ Russia\n4️⃣ 77 123456\n5️⃣ Christian\n6️⃣ No \n7️⃣ No \n8️⃣ Russia, Lenina street 11-431\n9️⃣ +721 11 22 33\n1️⃣0️⃣ No work\n1️⃣1️⃣ Nhatrang, Tran phu 100 -221 (Lily Apartment)\n1️⃣2️⃣ Yes , from 08.06.2023 to 11.06.2023', reply_markup=continue_btn)
-        
-
-
-# @dp.callback_query_handler(text=['visa_yes'], state=None)
-async def name_2(callback: types.CallbackQuery, state=FSMContext):
-     if callback.data == 'main_menu':
-         await state.finish()
-         await menu_2(callback)
-     else:
-        await callback.message.answer('Ваше Имя Латиницей:')
-        await FSMVisa.next()
-
-# @dp.message_handler(state=FSMVisa.name)
-async def name_load(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-            data['name'] = message.text
-    # await message.delete()
-    await FSMVisa.next()
-    await message.answer('Гражданство:')
-
-
-# @dp.message_handler( state=FSMVisa.occupation)
-async def ocupation_load(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-            data['occupation'] = message.text
+        msg_id = data['msg_id']
+    await bot.delete_message(message.from_user.id, msg_id)
     
-    await FSMVisa.next()
-    await message.answer('Место рождения:')
-
-
-# @dp.message_handler( state=FSMVisa.citizenship)
-async def citizenship_load(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-            data['citizenship'] = message.text
-    
+        data['user_id'] = message.from_user.id
+        data['visa'] = message.text
     await FSMVisa.next()
-    await message.answer('Номер заграничного паспорта:')
-
-
-# @dp.message_handler( state=FSMVisa.passport_number)
-async def passport_number_load(message: types.Message, state: FSMContext):
+    await message.delete()
+    msg = await message.answer('👉 Теперь просьба заполнить опросник: 1️⃣0️⃣ пунктов:\n⚠️Заполнять латинскими буквами!', reply_markup=approve_btn)
     async with state.proxy() as data:
-            data['passport_number'] = message.text
-    
-    await FSMVisa.next()
-    await message.answer('Религия:')
+        data['msg_id'] = msg["message_id"]
 
 
-# @dp.message_handler( state=FSMVisa.religion)
-async def religion_load(message: types.Message, state: FSMContext):
+# @dp.message_handler(state=FSMVisa.approve)
+async def approve(message: types.Message, state=FSMContext):
     async with state.proxy() as data:
-            data['religion'] = message.text
-    
+        msg_id = data['msg_id']
+    await bot.delete_message(message.from_user.id, msg_id)
     await FSMVisa.next()
-    await message.answer('Использовали ли Вы другие паспорта для въезда во Вьетнам ранее?', reply_markup=yes_no_btn)
+    await message.delete()
+    msg = await message.answer('Использовали ли Вы другие паспорта для въезда во Вьетнам ранее?', reply_markup=yes_no_evisa)
+    async with state.proxy() as data:
+        data['msg_id'] = msg["message_id"]
 
 
-# @dp.callback_query_handler(state=FSMVisa.old_passport_1)
-async def old_passport_load(callback: types.CallbackQuery, state: FSMContext):
-    if callback.data == 'no':
+# @dp.message_handler(state=FSMVisa.another_passport)
+async def another_passport_load(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        msg_id = data['msg_id']
+    await bot.delete_message(message.from_user.id, msg_id)
+
+    if message.text == "Предыдущий вопрос":
+        await FSMVisa.previous()
+        await FSMVisa.previous()
+        await message.delete()
+        msg = await message.answer('Выберите Визу:\n🌐 90 дней Single\n🌐 90 дней Multiple', reply_markup=visa_90_btn)
         async with state.proxy() as data:
-                data['old_passport'] = callback.data
+            data['msg_id'] = msg["message_id"]
         
+        
+    else:
+        async with state.proxy() as data:
+                data['another_passport'] = message.text
+        await message.delete()
         await FSMVisa.next()
-        await FSMVisa.next()
-        await callback.message.answer('Имеете ли двойное гражданство?', reply_markup=yes_no_btn)
+        msg = await message.answer('Имеете ли двойное гражданство?', reply_markup=yes_no_evisa)
+        async with state.proxy() as data:
+            data['msg_id'] = msg["message_id"]
+
+
+# @dp.message_handler( state=FSMVisa.double_citizenship)
+async def double_citizenship_load(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        msg_id = data['msg_id']
+    await bot.delete_message(message.from_user.id, msg_id)
+
+    if message.text == 'Предыдущий вопрос':
+        await message.delete()
+        await FSMVisa.previous()
+        msg = await message.answer('Использовали ли Вы другие паспорта для въезда во Вьетнам ранее?', reply_markup=yes_no_evisa)
+        async with state.proxy() as data:
+            data['msg_id'] = msg["message_id"]
 
     else:
+        async with state.proxy() as data:
+                data['double_citizenship'] = message.text
         
         await FSMVisa.next()
-        await callback.message.answer('Напишите, через запятую\n\nФамилия Имя, Гражданство, Дата рождения, Номер паспорта')
-        
-
-# @dp.message_handler( state=FSMVisa.old_passport_2)
-async def old_passport_2_load(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-            data['old_passport'] = message.text
-    
-    await FSMVisa.next()
-    await message.answer('Имеете ли двойное гражданство?', reply_markup=yes_no_btn)
-
-
-# @dp.callback_query_handler(state=FSMVisa.double_citizenship)
-async def double_citizenship_load(callback: types.CallbackQuery, state: FSMContext):
-    async with state.proxy() as data:
-            data['double_citizenship'] = callback.data
-    
-    await FSMVisa.next()
-    await callback.message.answer('Адрес проживания в стране гражданства?')
+        await message.delete()
+        msg = await message.answer('Адрес проживания в стране гражданства :', reply_markup=previous)
+        async with state.proxy() as data:
+            data['msg_id'] = msg["message_id"]
 
 
 # @dp.message_handler( state=FSMVisa.home_adress)
 async def home_adress_load(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-            data['home_adress'] = message.text
-    
-    await FSMVisa.next()
-    await message.answer('Ваш номер телефона?')
+        msg_id = data['msg_id']
+    await bot.delete_message(message.from_user.id, msg_id)
+
+    if message.text == 'Предыдущий вопрос':
+        await message.delete()
+        await FSMVisa.previous()
+        msg = await message.answer('Имеете ли двойное гражданство?', reply_markup=yes_no_evisa)
+        async with state.proxy() as data:
+            data['msg_id'] = msg["message_id"]
+    else:
+        async with state.proxy() as data:
+                data['home_adress'] = message.text
+        
+        await FSMVisa.next()
+        await message.delete()
+        msg = await message.answer('Ваш номер телефона:', reply_markup=previous)
+        async with state.proxy() as data:
+                data['msg_id'] = msg["message_id"]
 
 
-# @dp.message_handler( state=FSMVisa.phone)
+# @dp.message_handler( state=FSMVisa.phone_number)
 async def phone_load(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['phone'] = message.text
+        msg_id = data['msg_id']
+    await bot.delete_message(message.from_user.id, msg_id)
     
-    await FSMVisa.next()
-    await message.answer('Место работы и Должность?')
-
-    
-
-
-# @dp.message_handler( state=FSMVisa.job)
-async def job_load(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['job'] = message.text
- 
-    await FSMVisa.next()
-    await message.answer('Адрес проживания во Вьетнаме?')
-
-
-# @dp.message_handler( state=FSMVisa.adress_vietnam)
-async def adress_vietnam_load(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['adress_vietnam'] = message.text
-
-    await FSMVisa.next()
-    await message.answer('Были ли во Вьетнаме за последний год?', reply_markup=yes_no_btn)
-
-
-# @dp.callback_query_handler( state=FSMVisa.vietnam_stay_last_year)
-async def vietnam_stay_last_year_load(callback: types.CallbackQuery, state: FSMContext):
-    if callback.data == 'no':
+    if message.text == 'Предыдущий вопрос':
+        await message.delete()
+        await FSMVisa.previous()
+        msg = await message.answer('Адрес проживания в стране гражданства :', reply_markup=previous)
         async with state.proxy() as data:
-            data['adress_vietnam'] = callback.data
-            data['vietnam_stay_last_year_date1'] = callback.data
-            data['vietnam_stay_last_year_date2'] = callback.data
+            data['msg_id'] = msg["message_id"]
+
+    else:
+        try:
+            async with state.proxy() as data:
+                data['phone_number'] = int(message.text)
+            await FSMVisa.next()
+            await message.delete()
+            msg = await message.answer('Адрес проживания во Вьетнаме', reply_markup=previous)
+            async with state.proxy() as data:
+                    data['msg_id'] = msg["message_id"]
+        except ValueError:
+                await FSMVisa.phone.set()
+                await message.delete()
+                msg = await message.answer('Введите число цифрами:', reply_markup=previous)
+                async with state.proxy() as data:
+                    data['msg_id'] = msg["message_id"]
+
+
+# @dp.message_handler( state=FSMVisa.vietnam_adress)
+async def vietnam_adress_load(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        msg_id = data['msg_id']
+    await bot.delete_message(message.from_user.id, msg_id)
+    
+    if message.text == 'Предыдущий вопрос':
+        await message.delete()
+        await FSMVisa.previous()
+        msg = await message.answer('Ваш номер телефона:', reply_markup=previous)
+        async with state.proxy() as data:
+            data['msg_id'] = msg["message_id"]
+
+    else:
+        async with state.proxy() as data:
+            data['vietnam_adress'] = message.text
+        await FSMVisa.next()
+        await message.delete()
+        msg = await message.answer('Посещали Вьетнам за последний год?', reply_markup=yes_no_evisa)
+        async with state.proxy() as data:
+                data['msg_id'] = msg["message_id"]
+
+
+# @dp.message_handler( state=FSMVisa.vietnam_stay)
+async def vietnam_stay_last_year_load(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        msg_id = data['msg_id']
+    await bot.delete_message(message.from_user.id, msg_id)
+    
+    if message.text == 'Предыдущий вопрос':
+        await message.delete()
+        await FSMVisa.previous()
+        msg = await message.answer('Адрес проживания во Вьетнаме?', reply_markup=previous)
+        async with state.proxy() as data:
+            data['msg_id'] = msg["message_id"]
+    
+
+    elif message.text == 'Нет':
+        async with state.proxy() as data:
+            data['vietnam_stay_last_year_date1'] = message.text
     
         await FSMVisa.next()
         await FSMVisa.next()
-        await FSMVisa.next()
-        await callback.message.answer('Ваш планируемый бюджет расходов? (USD)?')
+        await message.delete()
+        msg = await message.answer('Напишите планируемую дату пересечения границы?', reply_markup=previous)
+        async with state.proxy() as data:
+            data['msg_id'] = msg["message_id"]
     else:
      
         await FSMVisa.next()
-        await callback.message.answer('Дата въезда?', reply_markup=await SimpleCalendar().start_calendar())
-
-
-# @dp.callback_query_handler(state=FSMVisa.vietnam_stay_last_year_date1, simple_cal_callback.filter())
-async def vietnam_stay_last_year_date1_load(callback: types.CallbackQuery, callback_data: dict, state: FSMContext):
-    selected, date = await SimpleCalendar().process_selection(callback, callback_data)
-    if selected:
+        await message.delete()
+        msg = await message.answer('Напишите даты пребывания во Вьетнаме?', reply_markup=previous)
         async with state.proxy() as data:
-           
-            data['vietnam_stay_last_year_date1'] = date.strftime("%d/%m/%Y")
+            data['msg_id'] = msg["message_id"]
+
+
+# @dp.message_handler(state=FSMVisa.vietnam_stay_last_year_date)
+async def vietnam_stay_last_year_date_load(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        msg_id = data['msg_id']
+    await bot.delete_message(message.from_user.id, msg_id)
+
+    if message.text == 'Предыдущий вопрос':
+        await message.delete()
+        await FSMVisa.previous()
+        msg = await message.answer('Посещали Вьетнам за последний год?', reply_markup=yes_no_evisa)
+        async with state.proxy() as data:
+                data['msg_id'] = msg["message_id"]
+
+    else:
+        async with state.proxy() as data:
+            data['vietnam_stay_last_year_date'] = message.text
 
         await FSMVisa.next()
-        await callback.message.answer('Дата вsезда?', reply_markup=await SimpleCalendar().start_calendar())
-
-
-
-# @dp.callback_query_handler(state=FSMVisa.vietnam_stay_last_year_date2, simple_cal_callback.filter())
-async def vietnam_stay_last_year_date2_load(callback: types.CallbackQuery, callback_data: dict, state: FSMContext):
-    selected, date = await SimpleCalendar().process_selection(callback, callback_data)
-    if selected:
+        await message.delete()
+        msg = await message.answer('Напишите планируемую дату пересечения границы?', reply_markup=previous)
         async with state.proxy() as data:
-           
-            data['vietnam_stay_last_year_date2'] = date.strftime("%d/%m/%Y")
+            data['msg_id'] = msg["message_id"]
+
+
+
+# @dp.message_handler(state=FSMVisa.date)
+async def visa_load_date(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        msg_id = data['msg_id']
+    await bot.delete_message(message.from_user.id, msg_id)
+
+    if message.text == 'Предыдущий вопрос':
+        await message.delete()
+        await FSMVisa.previous()
+        msg = await message.answer('Напишите даты пребывания во Вьетнаме?', reply_markup=previous)
+        async with state.proxy() as data:
+                data['msg_id'] = msg["message_id"]
+    
+    else:
+        async with state.proxy() as data:    
+            data['date'] = message.text
+        
+        await FSMVisa.next()
+        await message.delete()
+        msg = await message.answer('Теперь введите место пересечения границы', reply_markup=visa_cities)
+        async with state.proxy() as data:
+            data['msg_id'] = msg["message_id"]
+
+
+
+# @dp.message_handler(state=FSMVisa.location)
+async def visa_load_location(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        msg_id = data['msg_id']
+    await bot.delete_message(message.from_user.id, msg_id)
+    
+    if message.text == 'Предыдущий вопрос':
+        await message.delete()
+        await FSMVisa.previous()
+        msg = await message.answer('Выберите планируемую дату пересечения границы? ', reply_markup=previous)
+        async with state.proxy() as data:
+            data['msg_id'] = msg["message_id"]
+
+
+    else:
+        async with state.proxy() as data:
+                data['location'] = message.text
 
         await FSMVisa.next()
-        await callback.message.answer('Ваш планируемый бюджет расходов? (USD)')
-
-
-# @dp.callback_query_handler( state=FSMVisa.budget)
-async def budget_load(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['budget'] = message.text
-
-    await FSMVisa.next()
-    await message.answer('Ваша медицинская страховка? (если нет, то пишите "нет")')
-
-
-
-# @dp.callback_query_handler( state=FSMVisa.insurance)
-async def insurance_load(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['insurance'] = message.text
-
-    await FSMVisa.next()
-    await message.answer('Выберите дату пересечения границы:', reply_markup=await SimpleCalendar().start_calendar())
-
-
-# @dp.callback_query_handler(state=FSMVisa.date, simple_cal_callback.filter())
-async def visa_load_date(callback: types.CallbackQuery, callback_data: dict, state: FSMContext):
-    selected, date = await SimpleCalendar().process_selection(callback, callback_data)
-    if selected:
+        await message.delete()
+        msg = await bot.send_photo(data['user_id'], photo=InputFile('/Users/alexsvoloch/Downloads/TELEGRAM_BOT_BOOK_TICKETS/photo/passport.jpeg'), caption='Теперь загрузите скан паспорта', reply_markup=previous)
         async with state.proxy() as data:
-           
-            data['date'] = date.strftime("%d/%m/%Y")
+                data['msg_id'] = msg["message_id"]
 
-        await FSMVisa.next()
-        await callback.message.answer('Теперь введите место пересечения границы', reply_markup=visa_cities)
-
-
-# @dp.callback_query_handler(state=FSMVisa.location)
-async def visa_load_location(callback: types.CallbackQuery, state: FSMContext):
-    async with state.proxy() as data:
-            data['location'] = callback.data
-
-    await FSMVisa.next()
-    await callback.message.answer('Теперь загрузите скан паспорта')
-
-
-# @dp.callback_query_handler(content_types=['photo'], state=FSMVisa.passport)
+# @dp.message_handler(content_types=['photo'], state=FSMVisa.passport)
 async def visa_load_passport(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-            data['passport'] = message.photo[0].file_id
-    await FSMVisa.next()
+        msg_id = data['msg_id']
+    await bot.delete_message(message.from_user.id, msg_id)
 
-    await message.answer('Теперь загрузите ваше фото на белом фоне')
-
+    if message.text == 'Предыдущий вопрос':
+        await message.delete()
+        await FSMVisa.previous()
+        msg = await message.answer('Теперь введите место пересечения границы', reply_markup=visa_cities)
+        async with state.proxy() as data:
+            data['msg_id'] = msg["message_id"]
+    else:
+        async with state.proxy() as data:
+                data['passport'] = message.photo[0].file_id
+        await FSMVisa.next()
+        await message.delete()
+        msg = await bot.send_photo(data['user_id'], photo=InputFile('/root/TELEGRAM_BOT_BOOK_TICKETS/photo.jpeg'), caption='Теперь загрузите ваше фото на белом фоне', reply_markup=previous)
+        async with state.proxy() as data:
+                data['msg_id'] = msg["message_id"]
 
 # @dp.callback_query_handler(content_types=['photo'], state=FSMVisa.photo)
 async def visa_load_photo(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-            data['photo'] = message.photo[0].file_id
-            
-    await sqlite_db.add_visa(state)
-    await state.finish()
-    await message.answer('Спасибо, ваша заявка приянта, оператор свяжется с вами в ближайшее время')
+        msg_id = data['msg_id']
+    await bot.delete_message(message.from_user.id, msg_id)
+
+    if message.text == 'Предыдущий вопрос':
+        await message.delete()
+        await FSMVisa.previous()
+        msg = await bot.send_photo(data['user_id'], photo=InputFile('/rootTELEGRAM_BOT_BOOK_TICKETS/passport.jpeg'), caption='Теперь загрузите скан паспорта', reply_markup=previous)
+        async with state.proxy() as data:
+                data['msg_id'] = msg["message_id"]
+    
+    else:
+        async with state.proxy() as data:
+                data['photo'] = message.photo[0].file_id
+                del data['msg_id']
+        
+     
+        await sqlite_db.add_visa(state)
+        
+        await state.finish()
+        await message.delete()
+        await message.answer('Спасибо, ваша заявка принята, оператор свяжется с вами в ближайшее время', reply_markup=types.ReplyKeyboardRemove())
 
 # __________________Чартерные билеты_________________________
 
@@ -825,31 +865,19 @@ def register_client_handler(dp: Dispatcher):
 
     dp.register_callback_query_handler(evisa_menu, text=['evisa'])
     dp.register_callback_query_handler(visa_start, text=['visa_yes'], state=None)
-    dp.register_callback_query_handler(visa_load, state=FSMVisa.visa)
-    dp.register_callback_query_handler(visa_2_load, state=FSMVisa.visa_2)
-    dp.register_callback_query_handler(approve, state=FSMVisa.approve)
-    dp.register_callback_query_handler(name_2, state=FSMVisa.name)
-    dp.register_message_handler(name_load, state=FSMVisa.name_2)
-    dp.register_message_handler(ocupation_load, state=FSMVisa.occupation)
-    dp.register_message_handler(citizenship_load, state=FSMVisa.citizenship)
-    dp.register_message_handler(passport_number_load, state=FSMVisa.passport_number)
-    dp.register_message_handler(religion_load, state=FSMVisa.religion)
-    dp.register_callback_query_handler(old_passport_load, state=FSMVisa.old_passport_1)
-    dp.register_message_handler(old_passport_2_load, state=FSMVisa.old_passport_2)
-    dp.register_callback_query_handler(double_citizenship_load, state=FSMVisa.double_citizenship)
+    dp.register_message_handler(visa_load, state=FSMVisa.visa)
+    dp.register_message_handler(approve, state=FSMVisa.approve)
+    dp.register_message_handler(another_passport_load, state=FSMVisa.another_passport)
+    dp.register_message_handler(double_citizenship_load, state=FSMVisa.double_citizenship)
     dp.register_message_handler(home_adress_load, state=FSMVisa.home_adress)
     dp.register_message_handler(phone_load, state=FSMVisa.phone)
-    dp.register_message_handler(job_load, state=FSMVisa.job)
-    dp.register_message_handler(adress_vietnam_load, state=FSMVisa.adress_vietnam)
-    dp.register_callback_query_handler(vietnam_stay_last_year_load, state=FSMVisa.vietnam_stay_last_year)
-    dp.register_callback_query_handler(vietnam_stay_last_year_date1_load, simple_cal_callback.filter(), state=FSMVisa.vietnam_stay_last_year_date1)
-    dp.register_callback_query_handler(vietnam_stay_last_year_date2_load, simple_cal_callback.filter(), state=FSMVisa.vietnam_stay_last_year_date2)
-    dp.register_message_handler(budget_load, state=FSMVisa.budget)
-    dp.register_message_handler(insurance_load, state=FSMVisa.insurance)
-    dp.register_callback_query_handler(visa_load_date, simple_cal_callback.filter(), state=FSMVisa.date)
-    dp.register_callback_query_handler(visa_load_location, state=FSMVisa.location)
-    dp.register_message_handler(visa_load_passport, content_types=['photo'], state=FSMVisa.passport)
-    dp.register_message_handler(visa_load_photo, content_types=['photo'], state=FSMVisa.photo)
+    dp.register_message_handler(vietnam_adress_load, state=FSMVisa.adress_vietnam)
+    dp.register_message_handler(vietnam_stay_last_year_load, state=FSMVisa.vietnam_stay_last_year)
+    dp.register_message_handler(vietnam_stay_last_year_date_load,state=FSMVisa.vietnam_stay_last_year_date)
+    dp.register_message_handler(visa_load_date, state=FSMVisa.date)
+    dp.register_message_handler(visa_load_location, state=FSMVisa.location)
+    dp.register_message_handler(visa_load_passport, content_types=['any'], state=FSMVisa.passport)
+    dp.register_message_handler(visa_load_photo, content_types=['any'], state=FSMVisa.photo)
     
 
 
