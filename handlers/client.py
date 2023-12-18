@@ -23,10 +23,10 @@ async def menu(message: types.Message, state: FSMContext):
     if current_state:  
         await state.finish()
     
-    if message.from_user.id == ID:
+    if message.from_user.id == ID or message.from_user.id == 245955512:
         await message.answer('Здравствуйте, вот список заявок', reply_markup=gen_inline_main_menu())
     else:
-        await bot.send_photo(message.from_user.id, photo=InputFile("/root/TELEGRAM_BOT_BOOK_TICKETS/LOGONEW.png"), reply_markup=types.ReplyKeyboardRemove())
+        
         await message.answer('Чем я могу Вам помочь сегодня?', reply_markup=inline_menu)
 
 
@@ -343,7 +343,7 @@ async def visa_load_location(message: types.Message, state: FSMContext):
 
         await FSMVisa.next()
         await message.delete()
-        msg = await bot.send_photo(data['user_id'], photo=InputFile('/Users/alexsvoloch/Downloads/TELEGRAM_BOT_BOOK_TICKETS/photo/passport.jpeg'), caption='Теперь загрузите скан паспорта', reply_markup=previous)
+        msg = await bot.send_photo(data['user_id'], photo=InputFile('/root/TELEGRAM_BOT_BOOK_TICKETS/passport.jpeg'), caption='Теперь загрузите скан паспорта', reply_markup=previous)
         async with state.proxy() as data:
                 data['msg_id'] = msg["message_id"]
 

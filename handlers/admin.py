@@ -7,7 +7,7 @@ from keyboard.admin_kb import currency_btn, gen_inline_visa_orders, gen_inline_c
 from database import sqlite_db
 
 
-ID = 5931861928
+ID = 285144226
 
 
 # @dp.callback_query_handler(commands=['admin_menu'])
@@ -57,8 +57,8 @@ async def evisa_one_order(callback: types.CallbackQuery):
     media = types.MediaGroup()
     media.attach_photo(order[10])
     media.attach_photo(order[11])
-    await bot.send_media_group(ID, media=media)
-    await bot.send_message(ID, f'Заявка на оформление E-Visa\n{order[1]}\n'
+    await bot.send_media_group(callback.from_user.id, media=media)
+    await bot.send_message(callback.from_user.id, f'Заявка на оформление E-Visa\n{order[1]}\n'
                                 f'Другие паспорта для въезда во Вьетнам {order[2]}\nДвойное гражданство: {order[3]}\nДомашний адрес: {order[4]}\n'
                                 f'Номер телефона: {order[5]}\nАдрес во Вьетнаме: {order[6]}\n'
                                 f'Были ли во Вьетнаме за последний год: {order[7]}\n'
